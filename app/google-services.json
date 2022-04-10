@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "907047041355",
+    "project_id": "curious-b1698",
+    "storage_bucket": "curious-b1698.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:907047041355:android:1e4ba31e861658349110ce",
+        "android_client_info": {
+          "package_name": "com.example.curious"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "907047041355-ebs8gk59fam1crnkq3ob4ddet6fua76o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsUquB-7nyrZgI2OaOdHSfC8wWgUb1BOw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "907047041355-ebs8gk59fam1crnkq3ob4ddet6fua76o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
