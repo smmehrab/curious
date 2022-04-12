@@ -62,6 +62,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     private androidx.appcompat.widget.Toolbar toolbar;
     private Button userDrawerBtn;
     private Button newArticleBtn;
+    private TextView activityTitle;
 
     /** Active User Variable */
     public static com.example.curious.Models.User activeUser;
@@ -103,6 +104,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.articles_toolbar);
         userDrawerBtn = (Button) findViewById(R.id.user_drawer_btn);
         newArticleBtn = (Button) findViewById(R.id.new_article_btn);
+        activityTitle = (TextView) findViewById(R.id.activity_title);
 
         // Navigation Drawer
         userNavigationView = (NavigationView) findViewById(R.id.user_navigation_view);
@@ -114,6 +116,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        activityTitle.setText(R.string.txt_articles);
     }
 
     public void setListeners(){
