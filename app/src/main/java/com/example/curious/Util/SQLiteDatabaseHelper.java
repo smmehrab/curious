@@ -95,7 +95,6 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
         if(!result) {
             sqLiteDatabase.insert(TABLE_USER, null, contentValues);
         }
-        showToast("SQLite Inserted");
     }
 
     public Boolean findUser(String uid){

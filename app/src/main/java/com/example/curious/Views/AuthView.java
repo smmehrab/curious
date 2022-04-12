@@ -92,7 +92,7 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
     }
 
     public void enterApp(){
-        Intent intent = new Intent(AuthView.this, HomeView.class);
+        Intent intent = new Intent(AuthView.this, ArticlesView.class);
         startActivity(intent);
     }
 
@@ -190,7 +190,6 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
 
     public String findDeviceId(){
         String id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-        showToast("device id" + id);
         return id;
     }
 
@@ -221,7 +220,7 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
 
     public void showToast(String message){
         Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 30);
         toast.show();
     }
 

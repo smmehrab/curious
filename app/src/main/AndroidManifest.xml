@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Curious">
         <activity
-            android:name=".Views.HomeView"
+            android:name=".Views.ArticlesView"
             android:exported="false" />
         <activity
             android:name=".Views.AuthView"

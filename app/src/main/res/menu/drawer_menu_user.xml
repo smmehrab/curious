@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:id="@+id/user_menu_top">
+
+        <item
+            android:id="@+id/user_profile_option"
+            android:icon="@drawable/icon_menu_profile"
+            android:title="@string/profile_txt"/>
+
+    </group>
+
+    <group android:id="@+id/user_menu_middle">
+
+        <item
+            android:id="@+id/user_articles_option"
+            android:icon="@drawable/ic_articles"
+            android:title="@string/txt_articles"/>
+
+        <item
+            android:id="@+id/user_saved_option"
+            android:icon="@drawable/ic_saved"
+            android:title="@string/txt_saved"/>
+
+    </group>
+
+    <group android:id="@+id/user_menu_botttom">
+        <item
+            android:id="@+id/user_settings_option"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/settings_txt"/>
+
+        <item
+            android:id="@+id/user_about_option"
+            android:icon="@drawable/ic_about"
+            android:title="@string/about_txt"/>
+
+        <item
+            android:id="@+id/user_sign_out_option"
+            android:icon="@drawable/ic_sign_out"
+            android:title="@string/sign_out_txt"/>
+    </group>
+
+</menu>
