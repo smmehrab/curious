@@ -4,13 +4,8 @@ public class Article {
     private String articleID;
     private String userID;
     private String title;
-    private String coverURL;
-    private String body;
-    private String timestamp;
-    private Integer likeCount;
-    private String[] comments = {};
 
-    public Article(String articleID, String userID, String title, String coverURL, String body, String timestamp, Integer likeCount, String[] comments) {
+    public Article(String articleID, String userID, String title, String coverURL, String body, String timestamp, Integer likeCount, Integer viewCount, String[] comments) {
         this.articleID = articleID;
         this.userID = userID;
         this.title = title;
@@ -18,6 +13,7 @@ public class Article {
         this.body = body;
         this.timestamp = timestamp;
         this.likeCount = likeCount;
+        this.viewCount = viewCount;
         this.comments = comments;
     }
 
@@ -77,6 +73,14 @@ public class Article {
         this.likeCount = likeCount;
     }
 
+    public Integer getViewCount() {
+        return viewCount;
+    }
+
+    public void setViewCount(Integer viewCount) {
+        this.viewCount = viewCount;
+    }
+
     public String[] getComments() {
         return comments;
     }
@@ -84,4 +88,11 @@ public class Article {
     public void setComments(String[] comments) {
         this.comments = comments;
     }
+
+    private String coverURL;
+    private String body;
+    private String timestamp;
+    private Integer likeCount;
+    private Integer viewCount;
+    private String[] comments = {};
 }
