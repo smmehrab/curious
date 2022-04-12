@@ -46,7 +46,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
         holder.date.setText(articles.get(position).getTimestamp());
         holder.title.setText(articles.get(position).getTitle());
         holder.author.setText(articles.get(position).getUserID());
-        holder.views.setText(articles.get(position).getViewCount().toString());
+        holder.views.setText(articles.get(position).getViewCount().toString() + " Views");
     }
 
     @Override

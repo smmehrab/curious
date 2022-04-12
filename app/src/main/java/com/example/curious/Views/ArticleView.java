@@ -16,6 +16,7 @@ import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -24,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,7 +47,14 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-public class ArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
+public class ArticleView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener{
+
+    /** Article */
+    Article article;
+    String check, articleId, author, title, coverUrl, body, date;
+    Integer likeCount, viewCount;
+    String[] comments;
+
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
 
@@ -55,6 +64,20 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth.AuthStateListener mAuthListener;
     GoogleSignInOptions googleSignInOptions;
+
+    /** View Variables */
+    ImageView articleCover;
+    TextView articleDate;
+    TextView articleTitle;
+    TextView articleAuthor;
+    TextView articleViews;
+    TextView articleBody;
+    LinearLayout articleLikeClickable;
+    ImageView articleLikeImage;
+    TextView articleLikeCount;
+    LinearLayout articleCommentClickable;
+    ImageView articleCommentImage;
+    TextView articleCommentCount;
 
     /** Navigation Drawer Variables */
     private DrawerLayout drawerLayout;
@@ -69,12 +92,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     private Button newArticleBtn;
     private TextView activityTitle;
 
-    /** RecyclerView Variables */
-    RecyclerView articlesRecyclerView;
-    ArrayList<Article> articles;
-    ArticleAdapter articleAdapter;
-    RecyclerTouchListener touchListener;
-
     /** Active User Variable */
     public static com.example.curious.Models.User activeUser;
 
@@ -84,30 +101,13 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_articles_view);
+        setContentView(R.layout.activity_article_view);
 
-        if(!isConnectedToInternet()) {
-            showToast("No Internet Connection");
-        }
-
-        // Load Articles from database
-        articles = new ArrayList<>();
-
-        // Adding new elements to the ArrayList
-        articles.add(new Article("1", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-        articles.add(new Article("2", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-        articles.add(new Article("3", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-        articles.add(new Article("4", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-        articles.add(new Article("5", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-        articles.add(new Article("6", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-        articles.add(new Article("7", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-        articles.add(new Article("8", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-
-        activateUser();
+        getActiveUser();
         setUI();
     }
 
-    public void activateUser(){
+    public void getActiveUser(){
         SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
         activeUser = sqLiteDatabaseHelper.getUser();
@@ -117,15 +117,16 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         findXmlElements();
         setToolbar();
         setListeners();
+        initializeArticle();
         initializeUI();
     }
 
-    public void findXmlElements(){
+    public void findXmlElements() {
         // Parent Layout
-        drawerLayout = (DrawerLayout) findViewById(R.id.articles_drawer_layout);
+        drawerLayout = (DrawerLayout) findViewById(R.id.article_drawer_layout);
 
         // Toolbar
-        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.articles_toolbar);
+        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.article_toolbar);
         userDrawerBtn = (Button) findViewById(R.id.user_drawer_btn);
         newArticleBtn = (Button) findViewById(R.id.new_article_btn);
         activityTitle = (TextView) findViewById(R.id.activity_title);
@@ -135,15 +136,26 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         profilePictureImageView = (ImageView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_picture);
         profileEmailTextView = (TextView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_email);
 
-        // Recycler View
-        articlesRecyclerView = (RecyclerView) findViewById(R.id.articles_recycler_view);
+        // View Variables
+        articleCover = findViewById(R.id.article_cover);
+        articleDate = findViewById(R.id.article_date);
+        articleTitle = findViewById(R.id.article_title);
+        articleAuthor = findViewById(R.id.article_author);
+        articleViews = findViewById(R.id.article_views);
+        articleBody = findViewById(R.id.article_body);
+        articleLikeClickable = findViewById(R.id.article_like_clickable);
+        articleLikeImage = findViewById(R.id.article_like_image);
+        articleLikeCount = findViewById(R.id.article_like_count);
+        articleCommentClickable = findViewById(R.id.article_comment_clickable);
+        articleCommentImage = findViewById(R.id.article_comment_image);
+        articleCommentCount = findViewById(R.id.article_comment_count);
     }
 
     public void setToolbar(){
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        activityTitle.setText(R.string.txt_articles);
+        activityTitle.setText(R.string.txt_view_article);
     }
 
     public void setListeners(){
@@ -151,10 +163,41 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         userDrawerBtn.setOnClickListener(this);
         userNavigationView.setNavigationItemSelectedListener(this);
         newArticleBtn.setOnClickListener(this);
-
-        //RecyclerView
-        articlesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
+
+    private void initializeArticle() {
+        Intent intent = getIntent();
+        check = intent.getStringExtra("status");
+        if(check.equals("view_article")) {
+            articleId = intent.getStringExtra("view_article_id");
+            author = intent.getStringExtra("view_article_author");
+            title = intent.getStringExtra("view_article_title");
+            coverUrl = intent.getStringExtra("view_article_coverURL");
+            body = intent.getStringExtra("view_article_body");
+            date = intent.getStringExtra("view_article_date");
+            likeCount = intent.getIntExtra("view_article_likeCount", 0);
+            viewCount = intent.getIntExtra("view_article_viewCount", 0);
+            comments = intent.getStringArrayExtra("view_article_comments");
+
+            article = new Article(articleId, author, title, coverUrl, body, date, likeCount, viewCount, comments);
+
+            // Set View
+            Picasso.get().load(coverUrl).into(articleCover);
+            articleDate.setText(date);
+            articleTitle.setText(title);
+            articleAuthor.setText(author);
+            articleViews.setText(String.valueOf(viewCount) + " Views");
+            articleBody.setText(body);
+            articleLikeCount.setText(String.valueOf(likeCount));
+            articleCommentCount.setText(String.valueOf(comments.length));
+
+            showToast(articleId);
+        }
+        else {
+            showToast("[ERROR] Couldn't Find Selected Article");
+        }
+    }
+
 
     public void initializeUI(){
         mAuth = FirebaseAuth.getInstance();
@@ -166,77 +209,15 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
         SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
-
-        // Recycle View
-        articlesRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        articleAdapter = new ArticleAdapter(this, articles, this);
-        articlesRecyclerView.setAdapter(articleAdapter);
-        articleAdapter.notifyDataSetChanged();
-    }
-
-    public void viewArticle(int position){
-        // This method will pass the article to ArticleView
-        showToast("View Article " + Integer.toString(position));
-        Article article = articles.get(position);
-        Intent intent = new Intent(ArticlesView.this, ArticleView.class);
-        intent.putExtra("status", "view_article");
-        sendArticleToActivity(article, intent);
-        startActivity(intent);
-    }
-
-    public void sendArticleToActivity(Article article, Intent intent){
-        intent.putExtra("view_article_id", article.getArticleID());
-        intent.putExtra("view_article_author", article.getUserID());
-        intent.putExtra("view_article_title", article.getTitle());
-        intent.putExtra("view_article_coverURL", article.getCoverURL());
-        intent.putExtra("view_article_body", article.getBody());
-        intent.putExtra("view_article_date", article.getTimestamp());
-        intent.putExtra("view_article_likeCount", article.getLikeCount());
-        intent.putExtra("view_article_viewCount", article.getViewCount());
-        intent.putExtra("view_article_comments", article.getComments());
-    }
-
-    private void handleDatabase() {
-        SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
-        SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
-
-        loadData(sqLiteDatabaseHelper);
-    }
-
-    private void loadData(SQLiteDatabaseHelper sqLiteDatabaseHelper) {
-
-        /*
-        articles.clear();
-        articles = sqLiteDatabaseHelper.loadAllJournalItems();
-
-        journalRecyclerView.addItemDecoration(
-                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-
-        );
-
-        journalAdapter = new JournalAdapter(JournalActivity.this, journals);
-        journalRecyclerView.setAdapter(journalAdapter);
-        journalAdapter.notifyDataSetChanged();
-         */
     }
 
 
     /** Others */
     @Override
     public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            super.finish();
-            moveTaskToBack(true);
-            return;
-        }
-        this.doubleBackToExitPressedOnce = true;
-        showToast("Press Once Again to EXIT");
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce=false;
-            }
-        }, 2000);
+        Intent intent = new Intent(ArticleView.this, ArticlesView.class);
+        startActivity(intent);
+        finish();
     }
 
     @Override
@@ -342,28 +323,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
-    @Override
-    public void onArticleClick(View view, int position) {
-        new CountDownTimer(100, 20) {
-            int i;
-            @Override
-            public void onTick(long l) {
-                if (i % 2 == 0) {
-                    view.setVisibility(View.INVISIBLE);
-                } else {
-                    view.setVisibility(View.VISIBLE);
-                }
-                i++;
-            }
-
-            @Override
-            public void onFinish() {
-                view.setVisibility(View.VISIBLE);
-                viewArticle(position);
-            }
-        }.start();
-    }
-
     /** Authentication & Sign Out */
     public void signOut() {
         initializeGoogleVariable();
@@ -396,6 +355,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
     }
+
 
     /** For Checking Network Connection */
     public void broadcastIntent() {

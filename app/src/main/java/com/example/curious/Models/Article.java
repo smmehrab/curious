@@ -4,6 +4,12 @@ public class Article {
     private String articleID;
     private String userID;
     private String title;
+    private String coverURL;
+    private String body;
+    private String timestamp;
+    private Integer likeCount;
+    private Integer viewCount;
+    private String[] comments = {};
 
     public Article(String articleID, String userID, String title, String coverURL, String body, String timestamp, Integer likeCount, Integer viewCount, String[] comments) {
         this.articleID = articleID;
@@ -89,10 +95,7 @@ public class Article {
         this.comments = comments;
     }
 
-    private String coverURL;
-    private String body;
-    private String timestamp;
-    private Integer likeCount;
-    private Integer viewCount;
-    private String[] comments = {};
+    public Integer getCommentCount() {
+        return comments.length;
+    }
 }

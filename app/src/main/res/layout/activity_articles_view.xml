@@ -15,7 +15,7 @@ tools:context=".Views.ArticlesView">
 
     <include
         android:id="@+id/articles_toolbar"
-        layout="@layout/action_bar_custom"
+        layout="@layout/action_bar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
