@@ -20,6 +20,17 @@ tools:context=".Views.ArticlesView">
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/articles_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="11.5"
+        android:layout_marginTop="10dp">
+
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+
 </LinearLayout>
 
 <com.google.android.material.navigation.NavigationView

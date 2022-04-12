@@ -5,6 +5,9 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,6 +21,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -25,9 +29,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import com.example.curious.Models.Article;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
+import com.example.curious.Util.OnActivityTouchListener;
+import com.example.curious.Util.RecyclerTouchListener;
 import com.example.curious.Util.SQLiteDatabaseHelper;
+import com.example.curious.ViewModels.ArticleAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -38,7 +46,9 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
-public class ArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener{
+import java.util.ArrayList;
+
+public class ArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
 
@@ -52,9 +62,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     /** Navigation Drawer Variables */
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
-
     private NavigationView userNavigationView;
-
     private ImageView profilePictureImageView;
     private TextView profileEmailTextView;
 
@@ -63,6 +71,12 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     private Button userDrawerBtn;
     private Button newArticleBtn;
     private TextView activityTitle;
+
+    /** RecyclerView Variables */
+    RecyclerView articlesRecyclerView;
+    ArrayList<Article> articles;
+    ArticleAdapter articleAdapter;
+    RecyclerTouchListener touchListener;
 
     /** Active User Variable */
     public static com.example.curious.Models.User activeUser;
@@ -78,6 +92,16 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         if(!isConnectedToInternet()) {
             showToast("No Internet Connection");
         }
+
+
+        // Load Articles from database
+        articles = new ArrayList<>();
+
+        // Adding new elements to the ArrayList
+        articles.add(new Article("1", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
+        articles.add(new Article("1", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
+        articles.add(new Article("1", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
+        articles.add(new Article("1", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
 
         activateUser();
         setUI();
@@ -110,6 +134,9 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         userNavigationView = (NavigationView) findViewById(R.id.user_navigation_view);
         profilePictureImageView = (ImageView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_picture);
         profileEmailTextView = (TextView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_email);
+
+        // Recycler View
+        articlesRecyclerView = (RecyclerView) findViewById(R.id.articles_recycler_view);
     }
 
     public void setToolbar(){
@@ -124,6 +151,30 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         userDrawerBtn.setOnClickListener(this);
         userNavigationView.setNavigationItemSelectedListener(this);
         newArticleBtn.setOnClickListener(this);
+
+        //RecyclerView
+        articlesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // Swipe Options
+        /*touchListener = new RecyclerTouchListener(this, articlesRecyclerView);
+        touchListener
+                .setClickable(new RecyclerTouchListener.OnRowClickListener() {
+                    @Override
+                    public void onRowClicked(int position) {
+                         Trigers when any
+                         * RecyclerButton is clicked
+                         * In this case
+                         * The journal will be
+                         * showed in reading mode
+                         *
+                        handleShowAction(position);
+                    }
+
+                    @Override
+                    public void onIndependentViewClicked(int independentViewID, int position) {
+                    }
+                });
+        */
     }
 
     public void initializeUI(){
@@ -136,7 +187,62 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
         SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
+
+        // Recycle View
+        articlesRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        articleAdapter = new ArticleAdapter(this, articles, this);
+        articlesRecyclerView.setAdapter(articleAdapter);
+        articleAdapter.notifyDataSetChanged();
     }
+
+    public void viewArticle(int position){
+        // This method will pass the article to ArticleView
+        showToast("View Article " + Integer.toString(position));
+        // Intent intent = new Intent(ArticlesView.this, ArticleView.class);
+        // intent.putExtra("status", "show_this_journal");
+        // Article sendJournal = articles.get(position);
+        // sendArticleToActivity(sendJournal, intent);
+        // startActivity(intent);
+    }
+
+    /*
+    public void sendArticleToActivity(Article article, Intent intent){
+        intent.putExtra("ja_show_title", article.getTitle());
+        intent.putExtra("ja_show_description", article.getDescription());
+        i.putExtra("ja_show_year", article.getYear());
+        i.putExtra("ja_show_month", j.getMonth());
+        i.putExtra("ja_show_day", j.getDay());
+        i.putExtra("ja_show_hour", j.getHour());
+        i.putExtra("ja_show_minute", j.getMinute());
+        i.putExtra("ja_show_fileLink", j.getFileLink());
+        i.putExtra("ja_show_imageLink", j.getImageLink());
+    }
+    */
+
+    private void handleDatabase() {
+        SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
+        SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
+
+        loadData(sqLiteDatabaseHelper);
+    }
+
+    private void loadData(SQLiteDatabaseHelper sqLiteDatabaseHelper) {
+
+        /*
+        articles.clear();
+        articles = sqLiteDatabaseHelper.loadAllJournalItems();
+
+        journalRecyclerView.addItemDecoration(
+                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+
+        );
+
+        journalAdapter = new JournalAdapter(JournalActivity.this, journals);
+        journalRecyclerView.setAdapter(journalAdapter);
+        journalAdapter.notifyDataSetChanged();
+         */
+    }
+
 
     /** Others */
     @Override
@@ -284,7 +390,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
         // Configuring Google Sign In
         googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestIdToken("907047041355-ebs8gk59fam1crnkq3ob4ddet6fua76o.apps.googleusercontent.com")
                 .requestEmail()
                 .build();
 
@@ -303,5 +409,27 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         boolean isConnected = activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
         return isConnected;
+    }
+
+    @Override
+    public void onArticleClick(View view, int position) {
+        new CountDownTimer(100, 20) {
+            int i;
+            @Override
+            public void onTick(long l) {
+                if (i % 2 == 0) {
+                    view.setVisibility(View.INVISIBLE);
+                } else {
+                    view.setVisibility(View.VISIBLE);
+                }
+                i++;
+            }
+
+            @Override
+            public void onFinish() {
+                view.setVisibility(View.VISIBLE);
+                viewArticle(position);
+            }
+        }.start();
     }
 }
