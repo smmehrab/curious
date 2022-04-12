@@ -61,6 +61,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     /** Toolbar Variables */
     private androidx.appcompat.widget.Toolbar toolbar;
     private Button userDrawerBtn;
+    private Button newArticleBtn;
 
     /** Active User Variable */
     public static com.example.curious.Models.User activeUser;
@@ -101,6 +102,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         // Toolbar
         toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.articles_toolbar);
         userDrawerBtn = (Button) findViewById(R.id.user_drawer_btn);
+        newArticleBtn = (Button) findViewById(R.id.new_article_btn);
 
         // Navigation Drawer
         userNavigationView = (NavigationView) findViewById(R.id.user_navigation_view);
@@ -118,6 +120,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         drawerLayout.setDrawerListener(drawerToggle);
         userDrawerBtn.setOnClickListener(this);
         userNavigationView.setNavigationItemSelectedListener(this);
+        newArticleBtn.setOnClickListener(this);
     }
 
     public void initializeUI(){
@@ -167,7 +170,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         if(view == userDrawerBtn) {
             new CountDownTimer(100, 20) {
                 int i;
-
                 @Override
                 public void onTick(long l) {
                     if (i % 2 == 0) {
@@ -187,6 +189,26 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                     else if (!drawerLayout.isDrawerOpen(userNavigationView)) {
                         drawerLayout.openDrawer(userNavigationView);
                     }
+                }
+            }.start();
+        }
+        else if(view == newArticleBtn) {
+            new CountDownTimer(100, 20) {
+                int i;
+                @Override
+                public void onTick(long l) {
+                    if (i % 2 == 0) {
+                        newArticleBtn.setVisibility(View.INVISIBLE);
+                    } else {
+                        newArticleBtn.setVisibility(View.VISIBLE);
+                    }
+                    i++;
+                }
+
+                @Override
+                public void onFinish() {
+                    newArticleBtn.setVisibility(View.VISIBLE);
+                    Snackbar.make(drawerLayout, "New Article View", Snackbar.LENGTH_SHORT).show();
                 }
             }.start();
         }
