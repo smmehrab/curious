@@ -128,8 +128,9 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         // Toolbar
         toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.article_toolbar);
         userDrawerBtn = (Button) findViewById(R.id.user_drawer_btn);
-        newArticleBtn = (Button) findViewById(R.id.new_article_btn);
         activityTitle = (TextView) findViewById(R.id.activity_title);
+        newArticleBtn = (Button) findViewById(R.id.new_article_btn);
+        newArticleBtn.setVisibility(View.INVISIBLE);
 
         // Navigation Drawer
         userNavigationView = (NavigationView) findViewById(R.id.user_navigation_view);
@@ -198,7 +199,6 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         }
     }
 
-
     public void initializeUI(){
         mAuth = FirebaseAuth.getInstance();
         networkReceiver = new NetworkReceiver();
@@ -210,7 +210,6 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
     }
-
 
     /** Others */
     @Override

@@ -94,14 +94,14 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         articles = new ArrayList<>();
 
         // Adding new elements to the ArrayList
-        articles.add(new Article("1", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-        articles.add(new Article("2", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
+        articles.add(new Article("1", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
+        articles.add(new Article("2", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
         articles.add(new Article("3", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-        articles.add(new Article("4", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-        articles.add(new Article("5", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-        articles.add(new Article("6", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-        articles.add(new Article("7", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
-        articles.add(new Article("8", "1", "title of the article", "@drawable/google_icon", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
+        articles.add(new Article("4", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
+        articles.add(new Article("5", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
+        articles.add(new Article("6", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
+        articles.add(new Article("7", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
+        articles.add(new Article("8", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
 
         activateUser();
         setUI();

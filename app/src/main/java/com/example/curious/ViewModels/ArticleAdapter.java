@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.curious.Models.Article;
 import com.example.curious.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -42,7 +43,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
 
     @Override
     public void onBindViewHolder(@NonNull ArticleViewHolder holder, int position) {
-        holder.cover.setImageURI(Uri.parse(articles.get(position).getCoverURL()));
+        Picasso.get().load(articles.get(position).getCoverURL()).into(holder.cover);
         holder.date.setText(articles.get(position).getTimestamp());
         holder.title.setText(articles.get(position).getTitle());
         holder.author.setText(articles.get(position).getUserID());
