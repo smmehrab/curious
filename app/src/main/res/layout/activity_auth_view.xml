@@ -42,7 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.5"
-            android:background="@drawable/btn_background"
+            android:background="@drawable/button_background"
             android:drawableLeft="@drawable/google_icon"
             android:drawablePadding="10dp"
             android:gravity="center_horizontal|center_vertical"

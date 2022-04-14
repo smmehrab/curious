@@ -103,8 +103,14 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_view);
 
-        getActiveUser();
-        setUI();
+        if(!isConnectedToInternet()) {
+            showToast("No Internet Connection");
+            onBackPressed();
+        }
+        else {
+            getActiveUser();
+            setUI();
+        }
     }
 
     public void getActiveUser(){
@@ -191,8 +197,6 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             articleBody.setText(body);
             articleLikeCount.setText(String.valueOf(likeCount));
             articleCommentCount.setText(String.valueOf(comments.length));
-
-            showToast(articleId);
         }
         else {
             showToast("[ERROR] Couldn't Find Selected Article");
@@ -291,9 +295,9 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             // startActivity(intent);
         }
         else if (id == R.id.user_articles_option) {
-            Snackbar.make(drawerLayout, "Articles View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), ArticlesView.class);
-            // startActivity(intent);
+            Intent intent = new Intent(ArticleView.this, ArticlesView.class);
+            startActivity(intent);
+            finish();
         }
         else if (id == R.id.user_saved_option) {
             Snackbar.make(drawerLayout, "Saved Articles View", Snackbar.LENGTH_SHORT).show();

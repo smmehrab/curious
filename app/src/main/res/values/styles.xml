@@ -8,7 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="drawerArrowStyle">@style/DrawerIcon</item>
         <item name="android:windowAnimationStyle">@style/SlideActivityAnimation</item>
-
+        <item name="android:buttonStyle">@style/ButtonStyle</item>
     </style>
 
     <style name="DrawerIcon" parent="Widget.AppCompat.DrawerArrowToggle">
@@ -42,6 +42,11 @@
         <item name="android:textColor">@android:color/white</item>
     </style>
 
+    <style name="ButtonStyle" parent="android:style/Widget.Button">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:background">@drawable/button_background</item>
+    </style>
 
 
 </resources>

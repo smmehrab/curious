@@ -8,6 +8,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -74,6 +75,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     ArrayList<Article> articles;
     ArticleAdapter articleAdapter;
     RecyclerTouchListener touchListener;
+    SwipeRefreshLayout swipeRefreshLayout;
 
     /** Active User Variable */
     public static com.example.curious.Models.User activeUser;
@@ -94,7 +96,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         articles = new ArrayList<>();
 
         // Adding new elements to the ArrayList
-        articles.add(new Article("1", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
+        articles.add(new Article("1", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", getResources().getString(R.string.txt_article_body), "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
         articles.add(new Article("2", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
         articles.add(new Article("3", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
         articles.add(new Article("4", "1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body", "2:00 PM | 24 April, 2022", 200, 2000, new String[]{}));
@@ -137,6 +139,9 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
         // Recycler View
         articlesRecyclerView = (RecyclerView) findViewById(R.id.articles_recycler_view);
+
+        // Swipe Refresh
+        // swipeRefreshLayout = findViewById(R.id.swiperefresh);
     }
 
     public void setToolbar(){
@@ -154,6 +159,15 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
         //RecyclerView
         articlesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // Swipe Refresh
+        /*
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });*/
     }
 
     public void initializeUI(){
@@ -176,7 +190,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
     public void viewArticle(int position){
         // This method will pass the article to ArticleView
-        showToast("View Article " + Integer.toString(position));
+        // showToast("View Article " + Integer.toString(position));
         Article article = articles.get(position);
         Intent intent = new Intent(ArticlesView.this, ArticleView.class);
         intent.putExtra("status", "view_article");
@@ -295,7 +309,9 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onFinish() {
                     newArticleBtn.setVisibility(View.VISIBLE);
-                    Snackbar.make(drawerLayout, "New Article View", Snackbar.LENGTH_SHORT).show();
+                    // Snackbar.make(drawerLayout, "New Article View", Snackbar.LENGTH_SHORT).show();
+                    Intent intent = new Intent(ArticlesView.this, NewArticleView.class);
+                    startActivity(intent);
                 }
             }.start();
         }
@@ -311,9 +327,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             // startActivity(intent);
         }
         else if (id == R.id.user_articles_option) {
-            Snackbar.make(drawerLayout, "Articles View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), ArticlesView.class);
-            // startActivity(intent);
+            startActivity(getIntent());
         }
         else if (id == R.id.user_saved_option) {
             Snackbar.make(drawerLayout, "Saved Articles View", Snackbar.LENGTH_SHORT).show();

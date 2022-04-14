@@ -71,7 +71,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
             views = (TextView) itemView.findViewById(R.id.article_item_views);
 
             this.onArticleClickListener = onArticleClickListener;
-            itemView.setOnClickListener(this); // bind the listener
+            itemView.setOnClickListener(this);
         }
 
         @Override

@@ -9,8 +9,16 @@
         <entry key="app/src/main/res/drawable-xxhdpi/btn_normal.xml" value="0.3305" />
         <entry key="app/src/main/res/drawable-xxhdpi/btn_pressed.xml" value="0.3305" />
         <entry key="app/src/main/res/drawable-xxhdpi/btn_text_color.xml" value="0.3305" />
+        <entry key="app/src/main/res/drawable/button_background.xml" value="0.175" />
+        <entry key="app/src/main/res/drawable/button_background1.xml" value="0.19" />
+        <entry key="app/src/main/res/drawable/button_focused.xml" value="0.19" />
+        <entry key="app/src/main/res/drawable/button_normal.xml" value="0.19" />
+        <entry key="app/src/main/res/drawable/button_pressed.xml" value="0.19" />
+        <entry key="app/src/main/res/drawable/button_text.xml" value="0.175" />
+        <entry key="app/src/main/res/drawable/button_text_secondary.xml" value="0.175" />
         <entry key="app/src/main/res/drawable/custom_journal_item.xml" value="0.19" />
         <entry key="app/src/main/res/drawable/ic_about.xml" value="0.19" />
+        <entry key="app/src/main/res/drawable/ic_add_cover.xml" value="0.3575" />
         <entry key="app/src/main/res/drawable/ic_baseline_article_24.xml" value="0.19" />
         <entry key="app/src/main/res/drawable/ic_comment.xml" value="0.19" />
         <entry key="app/src/main/res/drawable/ic_drawer.xml" value="0.19" />
@@ -29,6 +37,9 @@
         <entry key="app/src/main/res/drawable/icon_profile.xml" value="0.172" />
         <entry key="app/src/main/res/drawable/icon_save.xml" value="0.172" />
         <entry key="app/src/main/res/drawable/icon_settings.xml" value="0.19" />
+        <entry key="app/src/main/res/drawable/shape_dotted_rectangle.xml" value="0.19" />
+        <entry key="app/src/main/res/drawable/shape_line_rectangle.xml" value="0.19" />
+        <entry key="app/src/main/res/layout/action_bar.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/layout/action_bar_custom.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/layout/activity_article_view.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/layout/activity_articles.xml" value="0.1621376811594203" />
@@ -36,6 +47,7 @@
         <entry key="app/src/main/res/layout/activity_auth_view.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/layout/activity_new_article_view.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/layout/custom_journal_item.xml" value="0.340625" />
         <entry key="app/src/main/res/layout/drawer_header_home.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/layout/drawer_header_user.xml" value="0.18177083333333333" />
