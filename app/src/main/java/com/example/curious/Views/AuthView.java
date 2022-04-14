@@ -16,6 +16,7 @@ import android.provider.Settings;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.curious.Models.User;
@@ -49,7 +50,7 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
     GoogleSignInOptions googleSignInOptions;
 
     /** Button */
-    private Button signInWithGoogleBtn;
+    private LinearLayout signInWithGoogle;
 
     /** SQLite Variable */
     SQLiteDatabaseHelper sqLiteDatabaseHelper;
@@ -104,12 +105,12 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
         broadcastIntent();
     }
 
-    void findXmlElements(){
-        signInWithGoogleBtn = (Button) findViewById(R.id.sign_in_with_google_btn);
+    void findXmlElements() {
+        signInWithGoogle = (LinearLayout) findViewById(R.id.sign_in_with_google);
     }
 
-    void setListeners(){
-        signInWithGoogleBtn.setOnClickListener(this);
+    void setListeners() {
+        signInWithGoogle.setOnClickListener(this);
     }
 
     /** */
@@ -121,7 +122,7 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
 
     @Override
     public void onClick(View view) {
-        if(view == signInWithGoogleBtn) {
+        if(view == signInWithGoogle) {
             if (!isConnectedToInternet())
                 Snackbar.make(findViewById(R.id.sign_in_activity), "Can't Sign In Without Internet Access!", Snackbar.LENGTH_SHORT).show();
             else {

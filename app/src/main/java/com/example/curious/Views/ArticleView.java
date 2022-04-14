@@ -95,9 +95,6 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
     /** Active User Variable */
     public static com.example.curious.Models.User activeUser;
 
-    /** Others */
-    private boolean doubleBackToExitPressedOnce = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -136,7 +133,6 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         userDrawerBtn = (Button) findViewById(R.id.user_drawer_btn);
         activityTitle = (TextView) findViewById(R.id.activity_title);
         newArticleBtn = (Button) findViewById(R.id.new_article_btn);
-        newArticleBtn.setVisibility(View.INVISIBLE);
 
         // Navigation Drawer
         userNavigationView = (NavigationView) findViewById(R.id.user_navigation_view);
@@ -162,6 +158,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        newArticleBtn.setVisibility(View.INVISIBLE);
         activityTitle.setText(R.string.txt_view_article);
     }
 
