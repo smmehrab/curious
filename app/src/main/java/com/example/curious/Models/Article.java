@@ -29,6 +29,10 @@ public class Article {
         this.comments = new ArrayList<Comment>();
     }
 
+    public Article() {
+
+    }
+
     public String getAid() {
         return aid;
     }

@@ -35,6 +35,12 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
         this.mOnArticleClickListener = onArticleClickListener;
     }
 
+    public void updateArticlesAdapter(ArrayList <Article> newArticles) {
+        this.articles.clear();
+        this.articles.addAll(newArticles);
+        this.notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public ArticleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

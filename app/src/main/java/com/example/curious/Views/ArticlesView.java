@@ -37,10 +37,19 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -55,6 +64,8 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth.AuthStateListener mAuthListener;
     GoogleSignInOptions googleSignInOptions;
+    private Query query;
+    private Query nextQuery;
 
     /** Navigation Drawer Variables */
     private DrawerLayout drawerLayout;
@@ -90,6 +101,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             showToast("No Internet Connection");
         }
 
+        /*
         // Load Articles from database
         articles = new ArrayList<>();
 
@@ -102,6 +114,9 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         articles.add(new Article("1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body"));
         articles.add(new Article("1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body"));
         articles.add(new Article("1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body"));
+        */
+
+        articles = new ArrayList<>();
 
         activateUser();
         setUI();
@@ -186,6 +201,59 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         articleAdapter.notifyDataSetChanged();
     }
 
+    /** Load Articles */
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadArticles("");
+    }
+
+    public void loadArticles(String mode) {
+        articles = new ArrayList<>();
+
+        // Initialize Firestore
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        CollectionReference articlesRef = database.collection("articles");
+
+        if(mode.isEmpty()) {
+            query = articlesRef.orderBy("timestamp").limit(5);
+        }
+        else {
+            query = nextQuery;
+        }
+
+        // Query
+        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot documentSnapshots) {
+                for(QueryDocumentSnapshot documentSnapshot : documentSnapshots){
+                    Article article = documentSnapshot.toObject(Article.class);
+                    articles.add(article);
+                }
+
+                // Get Last Loaded Article
+                DocumentSnapshot lastArticle = documentSnapshots.getDocuments().get(documentSnapshots.size() -1);
+
+                // Next Query
+                nextQuery = articlesRef.orderBy("timestamp").startAfter(lastArticle).limit(5);
+
+                // Update RecyclerView
+                articleAdapter.updateArticlesAdapter(articles);
+
+                // Debug
+                showToast(articles.get(0).getAid());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showToast(e.getMessage());
+            }
+        });
+    }
+
+    /** View Article */
+
     public void viewArticle(int position){
         // This method will pass the article to ArticleView
         // showToast("View Article " + Integer.toString(position));
@@ -207,31 +275,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         intent.putExtra("view_article_viewCount", article.getViewCount());
         // intent.putExtra("view_article_comments", article.getComments());
     }
-
-    private void handleDatabase() {
-        SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(this);
-        SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
-
-        loadData(sqLiteDatabaseHelper);
-    }
-
-    private void loadData(SQLiteHelper sqLiteDatabaseHelper) {
-
-        /*
-        articles.clear();
-        articles = sqLiteDatabaseHelper.loadAllJournalItems();
-
-        journalRecyclerView.addItemDecoration(
-                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-
-        );
-
-        journalAdapter = new JournalAdapter(JournalActivity.this, journals);
-        journalRecyclerView.setAdapter(journalAdapter);
-        journalAdapter.notifyDataSetChanged();
-         */
-    }
-
 
     /** Others */
     @Override

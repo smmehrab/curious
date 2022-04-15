@@ -192,6 +192,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     }
 
     /** Cover Upload */
+
     public void uploadCover() {
         if(Build.VERSION.SDK_INT >= 22) {
             checkAndRequestForPermission();
@@ -240,6 +241,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     }
 
     /** Post Article */
+
     public void postArticle() {
         // Upload Cover to Storage
         String coverDownloadLink = "";
