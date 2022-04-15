@@ -173,6 +173,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         Intent intent = getIntent();
         check = intent.getStringExtra("status");
         if(check.equals("view_article")) {
+            // Get Data
             articleId = intent.getStringExtra("view_article_id");
             author = intent.getStringExtra("view_article_author");
             title = intent.getStringExtra("view_article_title");
@@ -181,9 +182,18 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             date = intent.getStringExtra("view_article_date");
             likeCount = intent.getIntExtra("view_article_likeCount", 0);
             viewCount = intent.getIntExtra("view_article_viewCount", 0);
-            comments = intent.getStringArrayExtra("view_article_comments");
+            // comments = intent.getStringArrayExtra("view_article_comments");
 
-            article = new Article(articleId, author, title, coverUrl, body, date, likeCount, viewCount, comments);
+            // Set Article Object
+            article.setAid(articleId);
+            article.setUid(author);
+            article.setTitle(title);
+            article.setCoverUrl(coverUrl);
+            article.setBody(body);
+            article.setTimestamp(date);
+            article.setLikeCount(likeCount);
+            article.setViewCount(viewCount);
+            // article.setComments(comments);
 
             // Set View
             Picasso.get().load(coverUrl).into(articleCover);
@@ -193,7 +203,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             articleViews.setText(String.valueOf(viewCount) + " Views");
             articleBody.setText(body);
             articleLikeCount.setText(String.valueOf(likeCount));
-            articleCommentCount.setText(String.valueOf(comments.length));
+            articleCommentCount.setText(String.valueOf(0));
         }
         else {
             showToast("[ERROR] Couldn't Find Selected Article");

@@ -1,42 +1,47 @@
 package com.example.curious.Models;
 
+import com.google.firebase.database.ServerValue;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Article {
-    private String articleID;
-    private String userID;
+    private String aid;
+    private String uid;
     private String title;
-    private String coverURL;
+    private String coverUrl;
     private String body;
-    private String timestamp;
+    private Object timestamp;
     private Integer likeCount;
     private Integer viewCount;
-    private String[] comments = {};
+    private List<Comment> comments;
 
-    public Article(String articleID, String userID, String title, String coverURL, String body, String timestamp, Integer likeCount, Integer viewCount, String[] comments) {
-        this.articleID = articleID;
-        this.userID = userID;
+    public Article(String uid, String title, String coverUrl, String body) {
+        this.aid = "";
+        this.uid = uid;
         this.title = title;
-        this.coverURL = coverURL;
+        this.coverUrl = coverUrl;
         this.body = body;
-        this.timestamp = timestamp;
-        this.likeCount = likeCount;
-        this.viewCount = viewCount;
-        this.comments = comments;
+        this.timestamp = ServerValue.TIMESTAMP;
+        this.likeCount = 0;
+        this.viewCount = 0;
+        this.comments = new ArrayList<Comment>();
     }
 
-    public String getArticleID() {
-        return articleID;
+    public String getAid() {
+        return aid;
     }
 
-    public void setArticleID(String articleID) {
-        this.articleID = articleID;
+    public void setAid(String aid) {
+        this.aid = aid;
     }
 
-    public String getUserID() {
-        return userID;
+    public String getUid() {
+        return uid;
     }
 
-    public void setUserID(String userID) {
-        this.userID = userID;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getTitle() {
@@ -47,12 +52,12 @@ public class Article {
         this.title = title;
     }
 
-    public String getCoverURL() {
-        return coverURL;
+    public String getCoverUrl() {
+        return coverUrl;
     }
 
-    public void setCoverURL(String coverURL) {
-        this.coverURL = coverURL;
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
 
     public String getBody() {
@@ -63,11 +68,11 @@ public class Article {
         this.body = body;
     }
 
-    public String getTimestamp() {
+    public Object getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Object timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -87,15 +92,11 @@ public class Article {
         this.viewCount = viewCount;
     }
 
-    public String[] getComments() {
+    public List<Comment> getComments() {
         return comments;
     }
 
-    public void setComments(String[] comments) {
+    public void setComments(List<Comment> comments) {
         this.comments = comments;
-    }
-
-    public Integer getCommentCount() {
-        return comments.length;
     }
 }

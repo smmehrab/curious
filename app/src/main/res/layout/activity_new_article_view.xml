@@ -47,19 +47,20 @@
                     <LinearLayout
                         android:id="@+id/new_article_cover_ll"
                         android:layout_width="match_parent"
-                        android:layout_height="200dp"
+                        android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:visibility="gone">
 
                         <ImageView
                             android:id="@+id/new_article_cover"
                             android:layout_width="match_parent"
-                            android:layout_height="180dp"
-                            android:src="@drawable/ic_image" />
+                            android:layout_height="400dp"
+                            android:src="@drawable/ic_image"
+                            android:layout_marginBottom="10dp"/>
 
                         <TextView
                             android:layout_width="match_parent"
-                            android:layout_height="20dp"
+                            android:layout_height="wrap_content"
                             android:text="@string/txt_click_to_change"
                             android:textColor="@color/secondary_text"
                             android:gravity="center"/>

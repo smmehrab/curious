@@ -1,16 +1,24 @@
 package com.example.curious.Views;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
@@ -24,22 +32,34 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.curious.Models.Article;
+import com.example.curious.Models.Comment;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteDatabaseHelper;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
+
+import java.net.URI;
+import java.util.List;
 
 public class NewArticleView extends AppCompatActivity implements View.OnClickListener{
 
     /** Article */
     Article article;
-    String check, articleId, author, title, coverUrl, body, date;
+    String aid, uid, title, body, coverUrl, date;
     Integer likeCount, viewCount;
-    String[] comments;
+    List<Comment> comments;
+    Uri coverUri;
 
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
@@ -69,6 +89,10 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
 
     /** Active User Variable */
     public static com.example.curious.Models.User activeUser;
+
+    /** Request for Permission Variable */
+    static int PReqCode = 1;
+    static int ReqCode = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,10 +192,102 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
     }
 
-    public void postArticle() {
-
+    /** Cover Upload */
+    public void uploadCover() {
+        if(Build.VERSION.SDK_INT >= 22) {
+            checkAndRequestForPermission();
+        }
+        else {
+            openGallery();
+        }
     }
 
+    public void checkAndRequestForPermission() {
+        if(ContextCompat.checkSelfPermission(NewArticleView.this, Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED) {
+            if(ActivityCompat.shouldShowRequestPermissionRationale(NewArticleView.this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                showToast("Must Grant Permission to Upload");
+            }
+            else {
+                ActivityCompat.requestPermissions(NewArticleView.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PReqCode);
+            }
+        }
+        else {
+            openGallery();
+        }
+    }
+
+    public void openGallery() {
+        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        galleryIntent.setType("image/*");
+        startActivityForResult(galleryIntent, ReqCode);
+    }
+
+    public void setCover(Uri uri) {
+        newArticleUploadCoverLL.setVisibility(View.GONE);
+        newArticleCoverLL.setVisibility(View.VISIBLE);
+        newArticleCover.setImageURI(coverUri);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode == RESULT_OK && requestCode == ReqCode && data!=null) {
+            // Successfully selected an image
+            // Save its reference to a URI variable
+            coverUri = data.getData();
+            setCover(coverUri);
+        }
+    }
+
+    /** Post Article */
+//    public void postArticle() {
+//        // Upload Cover to Storage
+//        String coverDownloadLink = "";
+//        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("article_covers");
+//        StorageReference coverFilePath = storageReference.child(coverUri.getLastPathSegment());
+//        coverFilePath.putFile(coverUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+//            @Override
+//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+//                coverFilePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//                    @Override
+//                    public void onSuccess(Uri uri) {
+//                        coverUrl = uri.toString();
+//                        title = newArticleTitle.getText().toString();
+//                        body = newArticleBody.getText().toString();
+//                        uid = activeUser.getUid().toString();
+//                        article = new Article(uid, title, coverUrl, body);
+//                        postArticleToFirebase(article);
+//                    }
+//                }).addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        showToast(e.getMessage());
+//                        showToast("During Cover Upload To Storage");
+//                    }
+//                });
+//            }
+//        });
+//    }
+//
+//    public void postArticleToFirebase(Article article) {
+//        FirebaseDatabase database = FirebaseDatabase.getInstance();
+//        DatabaseReference aRef = database.getReference("Articles").push();
+//
+//        // get & set aid
+//        aid = aRef.getKey();
+//        article.setAid(aid);
+//
+//        // add article to firebase database
+//        aRef.setValue(article).addOnSuccessListener(new OnSuccessListener<Void>() {
+//            @Override
+//            public void onSuccess(Void unused) {
+//                showToast("Article Added Successfully");
+//            }
+//        });
+//    }
+
+    /** Listeners */
     @Override
     public void onClick(View view) {
         if(view == newArticleUploadCoverClickableLL) {
@@ -190,7 +306,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                 @Override
                 public void onFinish() {
                     newArticleUploadCoverClickableLL.setVisibility(View.VISIBLE);
-                    // Todo
+                    uploadCover();
                 }
             }.start();
         }
@@ -200,7 +316,26 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
             finish();
         }
         else if(view == newArticlePost) {
-            postArticle();
+            if(!newArticleTitle.getText().toString().isEmpty()
+                    && !newArticleTitle.getText().toString().equals(getResources().getString(R.string.txt_give_a_catchy_title))
+                    && !newArticleBody.getText().toString().isEmpty()
+                    && !newArticleBody.getText().toString().equals(getResources().getString(R.string.txt_write_your_article))
+                    && coverUri!=null) {
+                // postArticle();
+            }
+            else {
+                if(newArticleTitle.getText().toString().isEmpty()
+                        || newArticleTitle.getText().toString().equals(getResources().getString(R.string.txt_give_a_catchy_title))) {
+                    showToast("Article Must Have A Title");
+                }
+                else if(newArticleBody.getText().toString().isEmpty()
+                        || newArticleBody.getText().toString().equals(getResources().getString(R.string.txt_write_your_article))) {
+                    showToast("Article Body Can't Be Blank");
+                }
+                else if(coverUri == null) {
+                    showToast("Article Must Have A Cover Image");
+                }
+            }
         }
     }
 

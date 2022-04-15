@@ -43,10 +43,10 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
 
     @Override
     public void onBindViewHolder(@NonNull ArticleViewHolder holder, int position) {
-        Picasso.get().load(articles.get(position).getCoverURL()).into(holder.cover);
-        holder.date.setText(articles.get(position).getTimestamp());
+        Picasso.get().load(articles.get(position).getCoverUrl()).into(holder.cover);
+        holder.date.setText(articles.get(position).getTimestamp().toString());
         holder.title.setText(articles.get(position).getTitle());
-        holder.author.setText(articles.get(position).getUserID());
+        holder.author.setText(articles.get(position).getUid());
         holder.views.setText(articles.get(position).getViewCount().toString() + " Views");
     }
 
