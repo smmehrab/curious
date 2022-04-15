@@ -44,6 +44,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.kusu.loadingbutton.LoadingButton;
 
 import java.util.List;
 
@@ -75,6 +76,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     EditText newArticleBody;
     Button newArticleCancel;
     Button newArticlePost;
+    LoadingButton newArticlePostLoading;
 
     /** Toolbar Variables */
     private androidx.appcompat.widget.Toolbar toolbar;
@@ -132,7 +134,8 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
         newArticleTitle = findViewById(R.id.new_article_title);
         newArticleBody = findViewById(R.id.new_article_body);
         newArticleCancel = findViewById(R.id.new_article_cancel_btn);
-        newArticlePost = findViewById(R.id.new_article_post_btn);
+//        newArticlePost = findViewById(R.id.new_article_post_btn);
+        newArticlePostLoading = findViewById(R.id.new_article_post_btn_loading);
     }
 
     public void setToolbar(){
@@ -147,7 +150,8 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     public void setListeners(){
         newArticleUploadCoverClickableLL.setOnClickListener(this);
         newArticleCancel.setOnClickListener(this);
-        newArticlePost.setOnClickListener(this);
+//        newArticlePost.setOnClickListener(this);
+        newArticlePostLoading.setOnClickListener(this);
 
         newArticleTitle.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -258,6 +262,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         showToast("[ERROR - Storage] " + e.getMessage());
+                        newArticlePostLoading.hideLoading();
                     }
                 });
             }
@@ -285,6 +290,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
             @Override
             public void onFailure(@NonNull Exception e) {
                 showToast("[ERROR - FIREBASE] " + e.toString());
+                newArticlePostLoading.hideLoading();
             }
         });
     }
@@ -317,12 +323,13 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
             startActivity(intent);
             finish();
         }
-        else if(view == newArticlePost) {
+        else if(view == newArticlePost || view == newArticlePostLoading) {
             if(!newArticleTitle.getText().toString().isEmpty()
                     && !newArticleTitle.getText().toString().equals(getResources().getString(R.string.txt_give_a_catchy_title))
                     && !newArticleBody.getText().toString().isEmpty()
                     && !newArticleBody.getText().toString().equals(getResources().getString(R.string.txt_write_your_article))
                     && coverUri!=null) {
+                newArticlePostLoading.showLoading();
                 postArticle();
             }
             else {

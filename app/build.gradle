@@ -57,4 +57,7 @@ dependencies {
 
     // Circular Image View
     implementation 'com.mikhaellopez:circularimageview:4.3.0'
+
+    // Loading Button
+    implementation 'com.github.koushikcse:LoadingButton:1.7'
 }

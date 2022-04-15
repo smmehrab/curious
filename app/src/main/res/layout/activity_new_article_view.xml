@@ -137,14 +137,26 @@
                 android:textColor="@drawable/button_text_secondary"
                 android:text="@string/txt_cancel"/>
 
-            <Button
-                android:id="@+id/new_article_post_btn"
+<!--            -->
+<!--            <Button-->
+<!--                android:id="@+id/new_article_post_btn"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:background="@drawable/button_background"-->
+<!--                android:textColor="@drawable/button_text"-->
+<!--                android:text="@string/txt_post" />-->
+<!--            -->
+            <com.kusu.loadingbutton.LoadingButton
+                android:id="@+id/new_article_post_btn_loading"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/txt_post"
                 android:background="@drawable/button_background"
-                android:textColor="@drawable/button_text"
-                android:text="@string/txt_post" />
+                android:textColor="@color/colorAccent"
+                app:lb_buttonColor="@color/colorPrimary"
+                app:lb_loaderColor="@color/colorAccent"/>
 
         </LinearLayout>
 
