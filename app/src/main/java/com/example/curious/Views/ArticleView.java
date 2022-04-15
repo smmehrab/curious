@@ -5,9 +5,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -16,10 +13,8 @@ import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,9 +27,7 @@ import android.widget.Toast;
 import com.example.curious.Models.Article;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
-import com.example.curious.Util.RecyclerTouchListener;
-import com.example.curious.Util.SQLiteDatabaseHelper;
-import com.example.curious.ViewModels.ArticleAdapter;
+import com.example.curious.Util.SQLiteHelper;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -44,8 +37,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
 
 public class ArticleView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener{
 
@@ -111,7 +102,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
     }
 
     public void getActiveUser(){
-        SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
+        SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
         activeUser = sqLiteDatabaseHelper.getUser();
     }
@@ -218,7 +209,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
         profileEmailTextView.setText(activeUser.getEmail());
 
-        SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
+        SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
     }
 
@@ -342,7 +333,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(getApplicationContext());
+                        SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(getApplicationContext());
                         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getWritableDatabase();
 
                         sqLiteDatabaseHelper.refreshDatabase(sqLiteDatabase);

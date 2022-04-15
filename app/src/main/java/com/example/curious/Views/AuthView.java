@@ -15,13 +15,12 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.curious.Models.User;
 import com.example.curious.R;
-import com.example.curious.Util.SQLiteDatabaseHelper;
+import com.example.curious.Util.SQLiteHelper;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -53,7 +52,7 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
     private LinearLayout signInWithGoogle;
 
     /** SQLite Variable */
-    SQLiteDatabaseHelper sqLiteDatabaseHelper;
+    SQLiteHelper sqLiteDatabaseHelper;
 
     /** Others */
     private boolean doubleBackToExitPressedOnce = false;
@@ -178,7 +177,7 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
     /** Local DB */
 
     void initializeSQLiteVariable(){
-        sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
+        sqLiteDatabaseHelper = new SQLiteHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getWritableDatabase();
     }
 

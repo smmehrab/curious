@@ -31,8 +31,7 @@ import android.widget.Toast;
 import com.example.curious.Models.Article;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
-import com.example.curious.Util.RecyclerTouchListener;
-import com.example.curious.Util.SQLiteDatabaseHelper;
+import com.example.curious.Util.SQLiteHelper;
 import com.example.curious.ViewModels.ArticleAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -74,7 +73,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     RecyclerView articlesRecyclerView;
     ArrayList<Article> articles;
     ArticleAdapter articleAdapter;
-    RecyclerTouchListener touchListener;
     SwipeRefreshLayout swipeRefreshLayout;
 
     /** Active User Variable */
@@ -110,7 +108,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     }
 
     public void activateUser(){
-        SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
+        SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
         activeUser = sqLiteDatabaseHelper.getUser();
     }
@@ -178,7 +176,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
         profileEmailTextView.setText(activeUser.getEmail());
 
-        SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
+        SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
 
         // Recycle View
@@ -211,13 +209,13 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleDatabase() {
-        SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
+        SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
 
         loadData(sqLiteDatabaseHelper);
     }
 
-    private void loadData(SQLiteDatabaseHelper sqLiteDatabaseHelper) {
+    private void loadData(SQLiteHelper sqLiteDatabaseHelper) {
 
         /*
         articles.clear();
@@ -387,7 +385,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(getApplicationContext());
+                        SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(getApplicationContext());
                         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getWritableDatabase();
 
                         sqLiteDatabaseHelper.refreshDatabase(sqLiteDatabase);

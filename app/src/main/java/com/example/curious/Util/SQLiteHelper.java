@@ -12,7 +12,7 @@ import android.widget.Toast;
 import com.example.curious.Models.User;
 
 
-public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
+public class SQLiteHelper extends SQLiteOpenHelper {
 
     /*** Database ***/
     private static final String DATABASE_NAME = "database_local.db";
@@ -38,7 +38,7 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
             USER_DEVICE + " TEXT NOT NULL); ";
 
     /*** Constructor ***/
-    public SQLiteDatabaseHelper(Context context) {
+    public SQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, VERSION_NUMBER);
         this.context = context;
     }

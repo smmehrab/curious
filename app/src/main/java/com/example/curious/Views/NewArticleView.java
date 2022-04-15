@@ -2,11 +2,9 @@ package com.example.curious.Views;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -35,21 +33,18 @@ import com.example.curious.Models.Article;
 import com.example.curious.Models.Comment;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
-import com.example.curious.Util.SQLiteDatabaseHelper;
+import com.example.curious.Util.SQLiteHelper;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
 
-import java.net.URI;
 import java.util.List;
 
 public class NewArticleView extends AppCompatActivity implements View.OnClickListener{
@@ -110,7 +105,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     }
 
     public void getActiveUser(){
-        SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
+        SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
         activeUser = sqLiteDatabaseHelper.getUser();
     }
@@ -188,7 +183,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
         networkReceiver = new NetworkReceiver();
         broadcastIntent();
 
-        SQLiteDatabaseHelper sqLiteDatabaseHelper = new SQLiteDatabaseHelper(this);
+        SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
     }
 
@@ -241,51 +236,58 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     }
 
     /** Post Article */
-//    public void postArticle() {
-//        // Upload Cover to Storage
-//        String coverDownloadLink = "";
-//        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("article_covers");
-//        StorageReference coverFilePath = storageReference.child(coverUri.getLastPathSegment());
-//        coverFilePath.putFile(coverUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//            @Override
-//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                coverFilePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-//                    @Override
-//                    public void onSuccess(Uri uri) {
-//                        coverUrl = uri.toString();
-//                        title = newArticleTitle.getText().toString();
-//                        body = newArticleBody.getText().toString();
-//                        uid = activeUser.getUid().toString();
-//                        article = new Article(uid, title, coverUrl, body);
-//                        postArticleToFirebase(article);
-//                    }
-//                }).addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        showToast(e.getMessage());
-//                        showToast("During Cover Upload To Storage");
-//                    }
-//                });
-//            }
-//        });
-//    }
-//
-//    public void postArticleToFirebase(Article article) {
-//        FirebaseDatabase database = FirebaseDatabase.getInstance();
-//        DatabaseReference aRef = database.getReference("Articles").push();
-//
-//        // get & set aid
-//        aid = aRef.getKey();
-//        article.setAid(aid);
-//
-//        // add article to firebase database
-//        aRef.setValue(article).addOnSuccessListener(new OnSuccessListener<Void>() {
-//            @Override
-//            public void onSuccess(Void unused) {
-//                showToast("Article Added Successfully");
-//            }
-//        });
-//    }
+    public void postArticle() {
+        // Upload Cover to Storage
+        String coverDownloadLink = "";
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("article_covers");
+        StorageReference coverFilePath = storageReference.child(coverUri.getLastPathSegment());
+        coverFilePath.putFile(coverUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                coverFilePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        coverUrl = uri.toString();
+                        title = newArticleTitle.getText().toString();
+                        body = newArticleBody.getText().toString();
+                        uid = activeUser.getUid().toString();
+                        article = new Article(uid, title, coverUrl, body);
+                        postArticleToFirebase(article);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        showToast("[ERROR - Storage] " + e.getMessage());
+                    }
+                });
+            }
+        });
+    }
+
+    public void postArticleToFirebase(Article article) {
+        // initialize new article on database
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        DocumentReference newArticleRef = database.collection("articles").document();
+
+        // get & set aid
+        aid = newArticleRef.getId();
+        article.setAid(aid);
+
+        // set article to database
+        newArticleRef.set(article).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                showToast("Article Added Successfully");
+                Intent intent = new Intent(NewArticleView.this, ArticlesView.class);
+                startActivity(intent);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showToast("[ERROR - FIREBASE] " + e.toString());
+            }
+        });
+    }
 
     /** Listeners */
     @Override
@@ -321,7 +323,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                     && !newArticleBody.getText().toString().isEmpty()
                     && !newArticleBody.getText().toString().equals(getResources().getString(R.string.txt_write_your_article))
                     && coverUri!=null) {
-                // postArticle();
+                postArticle();
             }
             else {
                 if(newArticleTitle.getText().toString().isEmpty()
