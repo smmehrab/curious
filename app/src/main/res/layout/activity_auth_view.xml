@@ -50,7 +50,8 @@
             android:orientation="horizontal"
             android:padding="10dp"
             android:elevation="4dp"
-            android:gravity="center">
+            android:gravity="center"
+            android:visibility="visible">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -68,6 +69,20 @@
                 android:textColor="@drawable/button_text"/>
 
         </LinearLayout>
+
+        <com.kusu.loadingbutton.LoadingButton
+            android:id="@+id/sign_in_with_google_loading"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:text=""
+            android:background="@drawable/button_background"
+            android:textColor="@color/secondary_text"
+            app:lb_buttonColor="@color/colorPrimary"
+            app:lb_loaderColor="@color/colorAccent"
+            app:lb_cornerRadius="0dp"
+            app:lb_isLoading="true"
+            android:visibility="gone"/>
 
     </LinearLayout>
 

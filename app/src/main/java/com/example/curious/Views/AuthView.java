@@ -34,6 +34,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.kusu.loadingbutton.LoadingButton;
 
 import java.util.Objects;
 
@@ -50,6 +51,7 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
 
     /** Button */
     private LinearLayout signInWithGoogle;
+    private LoadingButton signInWithGoogleLoading;
 
     /** SQLite Variable */
     SQLiteHelper sqLiteDatabaseHelper;
@@ -92,7 +94,10 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
     }
 
     public void enterApp(){
-        Intent intent = new Intent(AuthView.this, ArticlesView.class);
+        Intent intent = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            intent = new Intent(AuthView.this, ArticlesView.class);
+        }
         startActivity(intent);
     }
 
@@ -106,10 +111,12 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
 
     void findXmlElements() {
         signInWithGoogle = (LinearLayout) findViewById(R.id.sign_in_with_google);
+        signInWithGoogleLoading = findViewById(R.id.sign_in_with_google_loading);
     }
 
     void setListeners() {
         signInWithGoogle.setOnClickListener(this);
+        signInWithGoogleLoading.setOnClickListener(this);
     }
 
     /** */
@@ -122,8 +129,13 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
     @Override
     public void onClick(View view) {
         if(view == signInWithGoogle) {
-            if (!isConnectedToInternet())
+            signInWithGoogle.setVisibility(View.GONE);
+            signInWithGoogleLoading.setVisibility(View.VISIBLE);
+            if (!isConnectedToInternet()) {
+                signInWithGoogle.setVisibility(View.VISIBLE);
+                signInWithGoogleLoading.setVisibility(View.GONE);
                 Snackbar.make(findViewById(R.id.sign_in_activity), "Can't Sign In Without Internet Access!", Snackbar.LENGTH_SHORT).show();
+            }
             else {
                 handleSignInWithGoogle();
             }
@@ -146,6 +158,8 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
+                signInWithGoogle.setVisibility(View.VISIBLE);
+                signInWithGoogleLoading.setVisibility(View.GONE);
                 showToast(e.toString());
             }
         }
@@ -162,8 +176,13 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
 
                             retrieveDataFromFirebase();
                             addUserToLocalDatabase(acct, deviceId);
+
+                            signInWithGoogle.setVisibility(View.VISIBLE);
+                            signInWithGoogleLoading.setVisibility(View.GONE);
                             enterApp();
                         } else {
+                            signInWithGoogle.setVisibility(View.VISIBLE);
+                            signInWithGoogleLoading.setVisibility(View.GONE);
                             Snackbar.make(findViewById(R.id.sign_in_activity), "Authentication Failed! Try Again!", Snackbar.LENGTH_SHORT).show();
                         }
                     }
