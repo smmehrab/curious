@@ -240,25 +240,48 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    /** Post Article */
+    /** Post Article to Firestore */
 
-    public void postArticle() {
+    public void postArticleToFirestore() {
+        // Initialize new article document on database
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        DocumentReference newArticleRef = database.collection("articles").document();
+
+        // Get & Set aid
+        aid = newArticleRef.getId();
+
         // Upload Cover to Storage
         String coverDownloadLink = "";
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("article_covers");
-        StorageReference coverFilePath = storageReference.child(coverUri.getLastPathSegment());
+        StorageReference coverFilePath = storageReference.child(aid);
         coverFilePath.putFile(coverUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 coverFilePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
+                        // Set Article Variables
                         coverUrl = uri.toString();
                         title = newArticleTitle.getText().toString();
                         body = newArticleBody.getText().toString();
                         uid = activeUser.getUid().toString();
-                        article = new Article(uid, title, coverUrl, body);
-                        postArticleToFirebase(article);
+                        article = new Article(aid, uid, title, coverUrl, body);
+
+                        // Set Article to Database
+                        newArticleRef.set(article).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                showToast("Article Added Successfully");
+                                Intent intent = new Intent(NewArticleView.this, ArticlesView.class);
+                                startActivity(intent);
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                showToast("[ERROR - FIREBASE] " + e.toString());
+                                newArticlePostLoading.hideLoading();
+                            }
+                        });
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -267,32 +290,6 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                         newArticlePostLoading.hideLoading();
                     }
                 });
-            }
-        });
-    }
-
-    public void postArticleToFirebase(Article article) {
-        // initialize new article on database
-        FirebaseFirestore database = FirebaseFirestore.getInstance();
-        DocumentReference newArticleRef = database.collection("articles").document();
-
-        // get & set aid
-        aid = newArticleRef.getId();
-        article.setAid(aid);
-
-        // set article to database
-        newArticleRef.set(article).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                showToast("Article Added Successfully");
-                Intent intent = new Intent(NewArticleView.this, ArticlesView.class);
-                startActivity(intent);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                showToast("[ERROR - FIREBASE] " + e.toString());
-                newArticlePostLoading.hideLoading();
             }
         });
     }
@@ -332,7 +329,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                     && !newArticleBody.getText().toString().equals(getResources().getString(R.string.txt_write_your_article))
                     && coverUri!=null) {
                 newArticlePostLoading.showLoading();
-                postArticle();
+                postArticleToFirestore();
             }
             else {
                 if(newArticleTitle.getText().toString().isEmpty()

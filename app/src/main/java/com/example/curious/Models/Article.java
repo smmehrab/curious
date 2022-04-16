@@ -19,8 +19,8 @@ public class Article {
     private Integer viewCount;
     private List<Comment> comments;
 
-    public Article(String uid, String title, String coverUrl, String body) {
-        this.aid = "";
+    public Article(String aid, String uid, String title, String coverUrl, String body) {
+        this.aid = aid;
         this.uid = uid;
         this.title = title;
         this.coverUrl = coverUrl;
