@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="@color/colorWhite"
+    android:orientation="horizontal"
+    android:elevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingVertical="5dp"
+        android:paddingRight="20dp"
+        android:weightSum="9">
+
+        <Button
+            android:id="@+id/user_drawer_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/colorWhite"
+            android:foreground="@drawable/ic_menu"
+            android:stateListAnimator="@null"
+            android:scaleType="fitXY"/>
+
+        <TextView
+            android:id="@+id/activity_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="7"
+            android:background="@color/colorWhite"
+            android:gravity="center"
+            android:text="@string/app_name"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/new_article_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginVertical="2dp"
+            android:background="@color/colorWhite"
+            android:foreground="@drawable/ic_new_article"
+            android:stateListAnimator="@null"
+            android:scaleType="fitXY"/>
+
+    </LinearLayout>
+
+</androidx.appcompat.widget.Toolbar>

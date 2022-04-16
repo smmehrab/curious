@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/article_drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Views.NewArticleView">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="12.5">
+
+        <include
+            android:id="@+id/new_article_toolbar"
+            layout="@layout/action_bar"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="10.5"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true">
+
+                <LinearLayout
+                    android:id="@+id/new_article_upload_cover_clickable_ll"
+                    android:orientation="vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:longClickable="true"
+                    android:layout_marginBottom="20dp">
+
+                    <LinearLayout
+                        android:id="@+id/new_article_cover_ll"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:id="@+id/new_article_cover"
+                            android:layout_width="match_parent"
+                            android:layout_height="400dp"
+                            android:src="@drawable/ic_image"
+                            android:layout_marginBottom="10dp"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/txt_click_to_change"
+                            android:textColor="@color/secondary_text"
+                            android:gravity="center"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/new_article_upload_cover_ll"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:background="@drawable/shape_dotted_rectangle"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_image"
+                            android:layout_marginBottom="20dp"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/txt_upload_article_cover"
+                            android:textColor="@color/secondary_text"
+                            android:gravity="center"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/new_article_title"
+                    android:textSize="16sp"
+                    android:textColor="@color/secondary_text"
+                    android:text="@string/txt_give_a_catchy_title"
+                    android:gravity="top"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/shape_line_rectangle"
+                    android:padding="10dp"
+                    android:layout_marginVertical="10dp" />
+
+                <EditText
+                    android:id="@+id/new_article_body"
+                    android:textSize="16sp"
+                    android:textColor="@color/secondary_text"
+                    android:text="@string/txt_write_your_article"
+                    android:gravity="top"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/shape_line_rectangle"
+                    android:minHeight="200dp"
+                    android:padding="10dp"
+                    android:layout_marginVertical="10dp"/>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/new_article_cancel_btn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:background="@drawable/button_background"
+                android:textColor="@drawable/button_text_secondary"
+                android:text="@string/txt_cancel"/>
+
+            <com.kusu.loadingbutton.LoadingButton
+                android:id="@+id/new_article_post_btn_loading"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/txt_post"
+                android:background="@drawable/button_background"
+                android:textColor="@color/colorAccent"
+                app:lb_buttonColor="@color/colorPrimary"
+                app:lb_loaderColor="@color/colorAccent"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
