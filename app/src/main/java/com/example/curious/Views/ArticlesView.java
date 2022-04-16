@@ -52,7 +52,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class ArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
     /** Network Variables */
@@ -229,6 +231,8 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             public void onSuccess(QuerySnapshot documentSnapshots) {
                 for(QueryDocumentSnapshot documentSnapshot : documentSnapshots){
                     Article article = documentSnapshot.toObject(Article.class);
+                    Date date = documentSnapshot.getDate("timestamp");
+                    article.setDate(DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date).toString());
                     articles.add(article);
                 }
 
@@ -242,12 +246,12 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                 articleAdapter.updateArticlesAdapter(articles);
 
                 // Debug
-                showToast(articles.get(0).getAid());
+                // showToast(articles.get(0).getAid());
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                showToast(e.getMessage());
+                showToast("[ERROR - Firestore] " + e.getMessage());
             }
         });
     }
@@ -255,28 +259,19 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     /** View Article */
 
     public void viewArticle(int position){
-        // This method will pass the article to ArticleView
-        // showToast("View Article " + Integer.toString(position));
         Article article = articles.get(position);
         Intent intent = new Intent(ArticlesView.this, ArticleView.class);
         intent.putExtra("status", "view_article");
-        sendArticleToActivity(article, intent);
+        sendAidToActivity(article.getAid(), intent);
         startActivity(intent);
     }
 
-    public void sendArticleToActivity(Article article, Intent intent){
-        intent.putExtra("view_article_id", article.getAid());
-        intent.putExtra("view_article_author", article.getUid());
-        intent.putExtra("view_article_title", article.getTitle());
-        intent.putExtra("view_article_coverURL", article.getCoverUrl());
-        intent.putExtra("view_article_body", article.getBody());
-        intent.putExtra("view_article_date", article.getTimestamp().toString());
-        intent.putExtra("view_article_likeCount", article.getLikeCount());
-        intent.putExtra("view_article_viewCount", article.getViewCount());
-        // intent.putExtra("view_article_comments", article.getComments());
+    public void sendAidToActivity(String aid, Intent intent){
+        intent.putExtra("view_article_aid", aid);
     }
 
     /** Others */
+
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
@@ -414,6 +409,10 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onFinish() {
                 view.setVisibility(View.VISIBLE);
+
+                // Debug
+                showToast(articles.get(position).getAid());
+
                 viewArticle(position);
             }
         }.start();

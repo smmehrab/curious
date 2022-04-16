@@ -32,17 +32,28 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
+
+import java.text.DateFormat;
+import java.util.Date;
 
 public class ArticleView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener{
 
     /** Article */
     Article article;
-    String check, articleId, author, title, coverUrl, body, date;
+    String check, aid, author, title, coverUrl, body, date;
     Integer likeCount, viewCount;
     String[] comments;
 
@@ -164,37 +175,8 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         Intent intent = getIntent();
         check = intent.getStringExtra("status");
         if(check.equals("view_article")) {
-            // Get Data
-            articleId = intent.getStringExtra("view_article_id");
-            author = intent.getStringExtra("view_article_author");
-            title = intent.getStringExtra("view_article_title");
-            coverUrl = intent.getStringExtra("view_article_coverURL");
-            body = intent.getStringExtra("view_article_body");
-            date = intent.getStringExtra("view_article_date");
-            likeCount = intent.getIntExtra("view_article_likeCount", 0);
-            viewCount = intent.getIntExtra("view_article_viewCount", 0);
-            // comments = intent.getStringArrayExtra("view_article_comments");
-
-            // Set Article Object
-            article.setAid(articleId);
-            article.setUid(author);
-            article.setTitle(title);
-            article.setCoverUrl(coverUrl);
-            article.setBody(body);
-            article.setTimestamp(date);
-            article.setLikeCount(likeCount);
-            article.setViewCount(viewCount);
-            // article.setComments(comments);
-
-            // Set View
-            Picasso.get().load(coverUrl).into(articleCover);
-            articleDate.setText(date);
-            articleTitle.setText(title);
-            articleAuthor.setText(author);
-            articleViews.setText(String.valueOf(viewCount) + " Views");
-            articleBody.setText(body);
-            articleLikeCount.setText(String.valueOf(likeCount));
-            articleCommentCount.setText(String.valueOf(0));
+            aid = intent.getStringExtra("view_article_aid");
+            loadArticle(aid);
         }
         else {
             showToast("[ERROR] Couldn't Find Selected Article");
@@ -208,32 +190,50 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
 
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
         profileEmailTextView.setText(activeUser.getEmail());
-
-        SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(this);
-        SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
     }
 
-    /** Others */
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent(ArticleView.this, ArticlesView.class);
-        startActivity(intent);
-        finish();
+    /** Load Article */
+
+    public void loadArticle(String aid) {
+        // Initialize Firestore
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        CollectionReference articlesRef = database.collection("articles");
+        Query query = articlesRef.whereEqualTo("aid", aid);
+
+        // Query
+        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+             @Override
+             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                 for(QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                     article = documentSnapshot.toObject(Article.class);
+                     Date date = documentSnapshot.getDate("timestamp");
+                     article.setDate(DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date).toString());
+                     setArticleView(article);
+                 }
+             }
+         }).addOnFailureListener(new OnFailureListener() {
+             @Override
+             public void onFailure(@NonNull Exception e) {
+                 showToast("[ERROR - Firestore] " + e.getMessage());
+             }
+         });
     }
 
-    @Override
-    public void finish() {
-        super.finish();
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-    }
+    /** Set Article View */
 
-    public void showToast(String message){
-        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        toast.show();
+    public void setArticleView(Article article) {
+        Picasso.get().load(article.getCoverUrl()).into(articleCover);
+        articleDate.setText(article.getDate());
+        articleTitle.setText(article.getTitle());
+        articleAuthor.setText(article.getUid());
+        articleViews.setText(String.valueOf(article.getViewCount()) + " Views");
+        articleBody.setText(article.getBody());
+        articleLikeCount.setText(String.valueOf(article.getLikeCount()));
+        articleCommentCount.setText(String.valueOf(article.getCommentCount()));
     }
 
     /** Listeners */
+
     @Override
     public void onClick(View view) {
         if(view == userDrawerBtn) {
@@ -325,6 +325,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
     }
 
     /** Authentication & Sign Out */
+
     public void signOut() {
         initializeGoogleVariable();
         mAuth.signOut();
@@ -357,8 +358,29 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
     }
 
+    /** Others */
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(ArticleView.this, ArticlesView.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
+
+    public void showToast(String message){
+        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
+    }
 
     /** For Checking Network Connection */
+
     public void broadcastIntent() {
         registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
