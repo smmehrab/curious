@@ -293,7 +293,10 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             // startActivity(intent);
         }
         else if (id == R.id.user_articles_option) {
-            Intent intent = new Intent(ArticleView.this, ArticlesView.class);
+            Intent intent = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                intent = new Intent(ArticleView.this, ArticlesView.class);
+            }
             startActivity(intent);
             finish();
         }
@@ -362,7 +365,10 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(ArticleView.this, ArticlesView.class);
+        Intent intent = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            intent = new Intent(ArticleView.this, ArticlesView.class);
+        }
         startActivity(intent);
         finish();
     }

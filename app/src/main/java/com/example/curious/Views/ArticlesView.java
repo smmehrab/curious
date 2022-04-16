@@ -259,7 +259,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         CollectionReference articlesRef = database.collection("articles");
 
         if(mode.isEmpty() || mode.equals("latest")) {
-            query = articlesRef.orderBy("timestamp").limit(numberOfDocumentsPerQuery);
+            query = articlesRef.orderBy("timestamp", Query.Direction.DESCENDING).limit(numberOfDocumentsPerQuery);
         }
         else {
             query = nextQuery;
@@ -283,7 +283,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                 }
                 else {
                     lastArticle = documentSnapshots.getDocuments().get(documentSnapshots.size()-1);
-                    nextQuery = articlesRef.orderBy("timestamp").startAfter(lastArticle).limit(numberOfDocumentsPerQuery);
+                    nextQuery = articlesRef.orderBy("timestamp", Query.Direction.DESCENDING).startAfter(lastArticle).limit(numberOfDocumentsPerQuery);
                 }
 
                 articles = newArticles;
