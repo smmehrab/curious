@@ -10,8 +10,7 @@ tools:context=".Views.ArticlesView">
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:weightSum="12.5">
+    android:orientation="vertical">
 
     <include
         android:id="@+id/articles_toolbar"
@@ -24,12 +23,52 @@ tools:context=".Views.ArticlesView">
         android:id="@+id/articles_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="11.5"
+        android:layout_weight="10.5"
         android:layout_marginTop="10dp">
-
 
     </androidx.recyclerview.widget.RecyclerView>
 
+    <LinearLayout
+        android:id="@+id/articles_buttons_ll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/articles_latest"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/txt_refresh"
+            android:background="@drawable/button_background"
+            android:textColor="@drawable/button_text_secondary" />
+
+        <Button
+            android:id="@+id/articles_older"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/txt_older"
+            android:background="@drawable/button_background"
+            android:textColor="@drawable/button_text_secondary"/>
+
+    </LinearLayout>
+
+    <com.kusu.loadingbutton.LoadingButton
+        android:id="@+id/articles_loading"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text=""
+        android:background="@drawable/button_background"
+        android:textColor="@color/secondary_text"
+        app:lb_buttonColor="@color/colorPrimary"
+        app:lb_loaderColor="@color/colorAccent"
+        app:lb_cornerRadius="0dp"
+        app:lb_isLoading="true"
+        android:visibility="gone"/>
 
 </LinearLayout>
 

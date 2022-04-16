@@ -1,6 +1,7 @@
 package com.example.curious.Views;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -17,6 +18,7 @@ import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -25,6 +27,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,13 +53,19 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.kusu.loadingbutton.LoadingButton;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+@RequiresApi(api = Build.VERSION_CODES.M)
 public class ArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
+
+    ArrayList<Article> articles;
+    ArrayList<Article> newArticles;
+
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
 
@@ -68,6 +77,9 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     GoogleSignInOptions googleSignInOptions;
     private Query query;
     private Query nextQuery;
+    private Integer numberOfDocumentsPerQuery=10;
+    private DocumentSnapshot lastArticle;
+    private Integer pageCount = 0;
 
     /** Navigation Drawer Variables */
     private DrawerLayout drawerLayout;
@@ -84,15 +96,20 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
     /** RecyclerView Variables */
     RecyclerView articlesRecyclerView;
-    ArrayList<Article> articles;
     ArticleAdapter articleAdapter;
-    SwipeRefreshLayout swipeRefreshLayout;
+
+    /** View Variables */
+    Button articlesOlder;
+    Button articlesLatest;
+    LoadingButton articlesLoading;
+    LinearLayout articlesButtons;
 
     /** Active User Variable */
     public static com.example.curious.Models.User activeUser;
 
     /** Others */
     private boolean doubleBackToExitPressedOnce = false;
+    private Integer scrollViewPos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +121,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         }
 
         /*
+        // Debug
         // Load Articles from database
         articles = new ArrayList<>();
 
@@ -155,8 +173,11 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         // Recycler View
         articlesRecyclerView = (RecyclerView) findViewById(R.id.articles_recycler_view);
 
-        // Swipe Refresh
-        // swipeRefreshLayout = findViewById(R.id.swiperefresh);
+        // View
+        articlesButtons = findViewById(R.id.articles_buttons_ll);
+        articlesOlder = findViewById(R.id.articles_older);
+        articlesLatest = findViewById(R.id.articles_latest);
+        articlesLoading = findViewById(R.id.articles_loading);
     }
 
     public void setToolbar(){
@@ -171,18 +192,40 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         userDrawerBtn.setOnClickListener(this);
         userNavigationView.setNavigationItemSelectedListener(this);
         newArticleBtn.setOnClickListener(this);
-
-        //RecyclerView
+        articlesOlder.setOnClickListener(this);
+        articlesLatest.setOnClickListener(this);
         articlesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        // Swipe Refresh
-        /*
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        articlesRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onRefresh() {
-                swipeRefreshLayout.setRefreshing(false);
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(newState == RecyclerView.SCROLL_INDICATOR_BOTTOM) {
+                    articlesButtons.setVisibility(View.VISIBLE);
+                }
             }
-        });*/
+
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dx > 0) {
+                    System.out.println("Scrolled Right");
+                }
+                else if (dx < 0) {
+                    System.out.println("Scrolled Left");
+                }
+                else {
+                    System.out.println("No Horizontal Scrolled");
+                }
+
+                if (dy > 0) {
+                    System.out.println("Scrolled Downwards");
+                }
+                else if (dy < 0) {
+                    articlesButtons.setVisibility(View.GONE);
+                }
+                else {
+                    System.out.println("No Vertical Scrolled");
+                }
+            }
+        });
     }
 
     public void initializeUI(){
@@ -192,9 +235,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
         profileEmailTextView.setText(activeUser.getEmail());
-
-        SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(this);
-        SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
 
         // Recycle View
         articlesRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -212,14 +252,14 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     }
 
     public void loadArticles(String mode) {
-        articles = new ArrayList<>();
+        newArticles = new ArrayList<>();
 
         // Initialize Firestore
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         CollectionReference articlesRef = database.collection("articles");
 
-        if(mode.isEmpty()) {
-            query = articlesRef.orderBy("timestamp").limit(5);
+        if(mode.isEmpty() || mode.equals("latest")) {
+            query = articlesRef.orderBy("timestamp").limit(numberOfDocumentsPerQuery);
         }
         else {
             query = nextQuery;
@@ -232,21 +272,22 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                 for(QueryDocumentSnapshot documentSnapshot : documentSnapshots){
                     Article article = documentSnapshot.toObject(Article.class);
                     Date date = documentSnapshot.getDate("timestamp");
-                    article.setDate(DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date).toString());
-                    articles.add(article);
+                    article.setDate(DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date));
+                    newArticles.add(article);
                 }
 
-                // Get Last Loaded Article
-                DocumentSnapshot lastArticle = documentSnapshots.getDocuments().get(documentSnapshots.size() -1);
-
                 // Next Query
-                nextQuery = articlesRef.orderBy("timestamp").startAfter(lastArticle).limit(5);
+                if(documentSnapshots.size()==0) {
+                    updateView("no_more");
+                    return;
+                }
+                else {
+                    lastArticle = documentSnapshots.getDocuments().get(documentSnapshots.size()-1);
+                    nextQuery = articlesRef.orderBy("timestamp").startAfter(lastArticle).limit(numberOfDocumentsPerQuery);
+                }
 
-                // Update RecyclerView
-                articleAdapter.updateArticlesAdapter(articles);
-
-                // Debug
-                // showToast(articles.get(0).getAid());
+                articles = newArticles;
+                updateView("changed");
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -254,6 +295,21 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                 showToast("[ERROR - Firestore] " + e.getMessage());
             }
         });
+    }
+
+    public void updateView(String mode) {
+        articlesLoading.setVisibility(View.GONE);
+
+        if(mode.equals("changed")) {
+            articleAdapter.updateArticlesAdapter(articles);
+        }
+        else if(mode.equals("no_more")) {
+            showToast("No More Older Articles Found");
+        }
+
+        if(articles.size()<numberOfDocumentsPerQuery) {
+            articlesButtons.setVisibility(View.VISIBLE);
+        }
     }
 
     /** View Article */
@@ -302,6 +358,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     }
 
     /** Listeners */
+
     @Override
     public void onClick(View view) {
         if(view == userDrawerBtn) {
@@ -350,6 +407,18 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                     startActivity(intent);
                 }
             }.start();
+        }
+        else if(view == articlesOlder) {
+            articlesButtons.setVisibility(View.GONE);
+            articlesLoading.setVisibility(View.VISIBLE);
+            pageCount++;
+            loadArticles("older");
+        }
+        else if(view == articlesLatest) {
+            articlesButtons.setVisibility(View.GONE);
+            articlesLoading.setVisibility(View.VISIBLE);
+            pageCount = 0;
+            loadArticles("latest");
         }
     }
 

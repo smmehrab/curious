@@ -111,5 +111,11 @@
     <string name="txt_write_your_article">Write Your Article</string>
     <string name="txt_click_on_the_image_to_edit">Click on the image to edit</string>
     <string name="txt_click_to_change">Click to Change</string>
+    <string name="txt_more">More</string>
+    <string name="txt_previous">Previous</string>
+    <string name="txt_next">Next</string>
+    <string name="txt_older">Older</string>
+    <string name="txt_latest">Latest</string>
+    <string name="txt_refresh">Refresh</string>
 
 </resources>
