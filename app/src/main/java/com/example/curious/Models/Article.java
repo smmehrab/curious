@@ -17,7 +17,7 @@ public class Article {
     private Object timestamp;
     private Integer likeCount;
     private Integer viewCount;
-    private List<Comment> comments;
+    private Integer commentCount;
 
     public Article(String aid, String uid, String title, String coverUrl, String body) {
         this.aid = aid;
@@ -29,7 +29,7 @@ public class Article {
         this.timestamp = FieldValue.serverTimestamp();
         this.likeCount = 0;
         this.viewCount = 0;
-        this.comments = new ArrayList<Comment>();
+        this.commentCount = 0;
     }
 
     public Article() {
@@ -100,23 +100,19 @@ public class Article {
         this.viewCount = viewCount;
     }
 
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public Integer getCommentCount() {
-        return comments.size();
-    }
-
     public String getDate() {
         return date;
     }
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public Integer getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(Integer commentCount) {
+        this.commentCount = commentCount;
     }
 }

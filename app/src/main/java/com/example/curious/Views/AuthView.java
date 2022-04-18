@@ -215,7 +215,6 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
                 showToast("[ERROR - FIRESTORE] " + e.toString());
             }
         });
-
     }
 
     /** Local DB */

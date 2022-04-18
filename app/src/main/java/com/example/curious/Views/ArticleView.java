@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.example.curious.Models.Article;
 import com.example.curious.Models.Comment;
+import com.example.curious.Models.User;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteHelper;
@@ -44,6 +45,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -55,12 +57,13 @@ import com.squareup.picasso.Picasso;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 public class ArticleView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener{
 
     /** Article */
     private Article article;
-    private String check, aid;
+    private String check, aid, cid;
     private ArrayList<Comment> comments;
     private boolean likeClicked = false;
     private boolean commentClicked = false;
@@ -269,6 +272,31 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         articleCommentCount.setText(String.valueOf(article.getCommentCount()));
     }
 
+    /** Comment */
+
+    public void postComment() {
+        // Initialize new article document on database
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        DocumentReference newCommentRef = database.collection("articles").document(aid).collection("comments").document();
+
+        cid = newCommentRef.getId();
+        Comment comment = new Comment(cid, aid, mAuth.getUid(), articleCommentBody.getText().toString());
+
+        // Set Article to Database
+        newCommentRef.set(comment).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                articleCommentPost.hideLoading();
+                showToast("Comment Posted");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showToast("[ERROR - FIRESTORE] " + e.toString());
+            }
+        });
+    }
+
     /** Listeners */
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -322,6 +350,10 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
                 commentClicked = true;
                 articleCommentImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_comment_active));
             }
+        }
+        else if(view == articleCommentPost) {
+            articleCommentPost.showLoading();
+            postComment();
         }
     }
 
