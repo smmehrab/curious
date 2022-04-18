@@ -19,7 +19,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -211,16 +213,45 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         articleCommentPost.setOnClickListener(this);
 
         articleCommentBody.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @SuppressLint("UseCompatLoadingForDrawables")
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(!hasFocus && TextUtils.isEmpty(articleCommentBody.getText().toString())){
                     articleCommentBody.setText(getResources().getString(R.string.txt_share_your_comment));
                     articleCommentBody.setTextColor(getResources().getColor(R.color.secondary_text));
                 }
-                else if (hasFocus && articleCommentBody.getText().toString().equals(getResources().getString(R.string.txt_share_your_comment))){
+                else if(hasFocus && articleCommentBody.getText().toString().equals(getResources().getString(R.string.txt_share_your_comment))){
                     articleCommentBody.setText("");
                     articleCommentBody.setTextColor(getResources().getColor(R.color.primary_text));
                 }
+
+                if(!hasFocus) {
+                    articleCommentPost.setEnabled(false);
+                    articleCommentPost.setBackground(getResources().getDrawable(R.drawable.button_secondary_round));
+                }
+            }
+        });
+
+        articleCommentBody.addTextChangedListener(new TextWatcher() {
+            @SuppressLint("UseCompatLoadingForDrawables")
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                if(articleCommentBody.getText().toString().isEmpty()) {
+                    articleCommentPost.setEnabled(false);
+                    articleCommentPost.setBackground(getResources().getDrawable(R.drawable.button_secondary_round));
+                }
+                else {
+                    articleCommentPost.setEnabled(true);
+                    articleCommentPost.setBackground(getResources().getDrawable(R.drawable.button_black_round));
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
         });
 
@@ -265,6 +296,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         articleBody.setText(article.getBody());
         articleLikeCount.setText(String.valueOf(article.getLikeCount()));
         articleCommentCount.setText(String.valueOf(article.getCommentCount()));
+        articleCommentUser.setText(mAuth.getCurrentUser().getDisplayName());
 
         initLike();
     }
@@ -397,7 +429,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
                 articleCommentBody.setText("");
 
                 showToast("Comment Posted");
-                updateCommentCount();
+                updateCommentCount(1);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -407,8 +439,20 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         });
     }
 
-    public void updateCommentCount() {
-        loadComments();
+    public void updateCommentCount(Integer change) {
+        Integer newCommentCount = article.getCommentCount() + change;
+
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        DocumentReference articleRef = database.collection("articles").document(aid);
+
+        articleRef.update("commentCount", newCommentCount).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                article.setCommentCount(newCommentCount);
+                articleCommentCount.setText(String.valueOf(newCommentCount));
+                loadComments();
+            }
+        });
     }
 
     public void loadComments() {

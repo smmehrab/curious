@@ -210,9 +210,10 @@
                             android:paddingVertical="10dp">
 
                             <TextView
+                                android:layout_marginTop="10dp"
                                 android:id="@+id/article_comment_user"
                                 android:textSize="14sp"
-                                android:textColor="@color/primary_text"
+                                android:textColor="@color/secondary_text_dark"
                                 android:text="Yamin Rupom"
                                 android:gravity="center_vertical"
                                 android:layout_width="match_parent"
@@ -230,13 +231,14 @@
                                 <EditText
                                     android:id="@+id/article_comment_body"
                                     android:textSize="12sp"
-                                    android:textColor="@color/secondary_text"
+                                    android:textColor="@color/secondary_text_dark"
                                     android:text="@string/txt_share_your_comment"
                                     android:gravity="top"
                                     android:layout_width="0dp"
                                     android:layout_weight="6"
                                     android:layout_height="wrap_content"
                                     android:minHeight="35dp"
+                                    android:textCursorDrawable="@color/secondary_text_dark"
                                     android:background="@drawable/shape_line_rectangle" />
 
                                 <LinearLayout
@@ -262,7 +264,7 @@
                                     android:layout_width="0dp"
                                     android:layout_weight="2"
                                     android:layout_height="35dp"
-                                    android:background="@drawable/button_black_round"
+                                    android:background="@drawable/button_secondary_round"
                                     android:textColor="@color/colorAccent"
                                     android:text="@string/txt_post"
                                     android:visibility="visible"/>
