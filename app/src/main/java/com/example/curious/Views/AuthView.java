@@ -27,6 +27,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
@@ -34,6 +36,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kusu.loadingbutton.LoadingButton;
 
 import java.util.Objects;
@@ -176,10 +180,7 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
 
                             retrieveDataFromFirebase();
                             addUserToLocalDatabase(acct, deviceId);
-
-                            signInWithGoogle.setVisibility(View.VISIBLE);
-                            signInWithGoogleLoading.setVisibility(View.GONE);
-                            enterApp();
+                            addUserToFirestore(acct, deviceId);
                         } else {
                             signInWithGoogle.setVisibility(View.VISIBLE);
                             signInWithGoogleLoading.setVisibility(View.GONE);
@@ -191,6 +192,30 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
 
     public void retrieveDataFromFirebase(){
         FirebaseUser user = mAuth.getCurrentUser();
+    }
+
+    public void addUserToFirestore(GoogleSignInAccount acct, String deviceId) {
+        User user = new User(mAuth.getUid(), acct.getEmail(), acct.getDisplayName(), Objects.requireNonNull(acct.getPhotoUrl()).toString(), deviceId);
+
+        // Initialize new article document on database
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        DocumentReference newUserRef = database.collection("users").document(Objects.requireNonNull(mAuth.getUid()));
+
+        // Set Article to Database
+        newUserRef.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                signInWithGoogle.setVisibility(View.VISIBLE);
+                signInWithGoogleLoading.setVisibility(View.GONE);
+                enterApp();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showToast("[ERROR - FIRESTORE] " + e.toString());
+            }
+        });
+
     }
 
     /** Local DB */
