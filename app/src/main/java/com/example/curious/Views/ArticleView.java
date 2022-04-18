@@ -335,6 +335,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         Query query = database.collection("articles").document(aid).collection("likes").whereEqualTo("aid", aid).whereEqualTo("uid", mAuth.getUid());
 
         query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @SuppressLint("UseCompatLoadingForDrawables")
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 // Already liked by this user
@@ -347,6 +348,8 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
                     likeClicked = false;
                     articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like));
                 }
+
+                articleLikeClickable.setClickable(true);
             }
         });
     }
@@ -398,15 +401,8 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         articleRef.update("likeCount", newLikeCount).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
+                articleLikeClickable.setClickable(true);
                 article.setLikeCount(newLikeCount);
-                if(change == -1) {
-                    likeClicked = false;
-                    articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like));
-                }
-                else {
-                    likeClicked = true;
-                    articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like_active));
-                }
                 articleLikeCount.setText(String.valueOf(newLikeCount));
             }
         });
@@ -519,11 +515,16 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         }
         else if(view == articleLikeClickable) {
             if(!likeClicked) {
+                likeClicked = true;
+                articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like_active));
                 postLike();
             }
             else {
+                likeClicked = false;
+                articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like));
                 postUnlike();
             }
+            articleLikeClickable.setClickable(false);
         }
         else if(view == articleCommentClickable) {
             if(!commentClicked) {
