@@ -52,6 +52,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firestore.v1.WriteResult;
 import com.kusu.loadingbutton.LoadingButton;
 import com.squareup.picasso.Picasso;
 
@@ -284,9 +285,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         newCommentRef.set(like).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
-                showToast("Liked");
-                likeClicked = true;
-                articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like_active));
+                updateLikeCount(1);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -307,12 +306,33 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
                     documentSnapshot.getReference().delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
-                            showToast("Unliked");
-                            likeClicked = false;
-                            articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like));
+                            updateLikeCount(-1);
                         }
                     });
                 }
+            }
+        });
+    }
+
+    public void updateLikeCount(Integer change) {
+        Integer newLikeCount = article.getLikeCount() + change;
+
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        DocumentReference articleRef = database.collection("articles").document(aid);
+
+        articleRef.update("likeCount", newLikeCount).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                article.setLikeCount(newLikeCount);
+                if(change == -1) {
+                    likeClicked = false;
+                    articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like));
+                }
+                else {
+                    likeClicked = true;
+                    articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like_active));
+                }
+                articleLikeCount.setText(String.valueOf(newLikeCount));
             }
         });
     }
