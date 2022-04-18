@@ -50,6 +50,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
         holder.userTextView.setText(comments.get(position).getUname());
         holder.commentTextView.setText(comments.get(position).getText());
+        holder.dateTextView.setText(comments.get(position).getDate());
     }
 
     @Override
@@ -60,11 +61,13 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     public class CommentViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView userTextView;
         TextView commentTextView;
+        TextView dateTextView;
         OnCommentClickListener onCommentClickListener;
         public CommentViewHolder(@NonNull View itemView, OnCommentClickListener onCommentClickListener) {
             super(itemView);
             userTextView = (TextView) itemView.findViewById(R.id.comment_item_user);
             commentTextView = (TextView) itemView.findViewById(R.id.comment_item_comment);
+            dateTextView = (TextView) itemView.findViewById(R.id.comment_item_date);
             this.onCommentClickListener = onCommentClickListener;
             itemView.setOnClickListener(this);
         }

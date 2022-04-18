@@ -24,15 +24,35 @@
         android:visibility="visible"
         android:paddingVertical="10dp">
 
-        <TextView
-            android:id="@+id/comment_item_user"
-            android:textSize="14sp"
-            android:textColor="@color/secondary_text_dark"
-            android:text="Yamin Rupom"
-            android:gravity="center_vertical"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"/>
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/comment_item_user"
+                android:textSize="14sp"
+                android:textColor="@color/secondary_text_dark"
+                android:text="Yamin Rupom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/comment_item_date"
+                android:textSize="12sp"
+                android:textColor="@color/secondary_text"
+                android:text="Yamin Rupom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/comment_item_comment"
