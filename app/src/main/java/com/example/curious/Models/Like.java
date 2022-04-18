@@ -2,27 +2,27 @@ package com.example.curious.Models;
 
 public class Like {
 
-    private String articleID;
-    private String userID;
+    private String aid;
+    private String uid;
 
-    public Like(String articleID, String userID) {
-        this.articleID = articleID;
-        this.userID = userID;
+    public Like(String aid, String uid) {
+        this.aid = aid;
+        this.uid = uid;
     }
 
-    public String getArticleID() {
-        return articleID;
+    public String getAid() {
+        return aid;
     }
 
-    public void setArticleID(String articleID) {
-        this.articleID = articleID;
+    public void setAid(String aid) {
+        this.aid = aid;
     }
 
-    public String getUserID() {
-        return userID;
+    public String getUid() {
+        return uid;
     }
 
-    public void setUserID(String userID) {
-        this.userID = userID;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

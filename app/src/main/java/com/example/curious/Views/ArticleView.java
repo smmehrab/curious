@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.example.curious.Models.Article;
 import com.example.curious.Models.Comment;
+import com.example.curious.Models.Like;
 import com.example.curious.Models.User;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
@@ -272,17 +273,59 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         articleCommentCount.setText(String.valueOf(article.getCommentCount()));
     }
 
+    /** Like */
+
+    public void postLike() {
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        DocumentReference newCommentRef = database.collection("articles").document(aid).collection("likes").document();
+
+        Like like = new Like(aid, mAuth.getUid());
+
+        newCommentRef.set(like).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                showToast("Liked");
+                likeClicked = true;
+                articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like_active));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showToast("[ERROR - FIRESTORE] " + e.toString());
+            }
+        });
+    }
+
+    public void postUnlike() {
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        Query query = database.collection("articles").document(aid).collection("likes").whereEqualTo("aid", aid).whereEqualTo("uid", mAuth.getUid());
+
+        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    documentSnapshot.getReference().delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            showToast("Unliked");
+                            likeClicked = false;
+                            articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like));
+                        }
+                    });
+                }
+            }
+        });
+    }
+
     /** Comment */
 
     public void postComment() {
-        // Initialize new article document on database
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         DocumentReference newCommentRef = database.collection("articles").document(aid).collection("comments").document();
 
         cid = newCommentRef.getId();
         Comment comment = new Comment(cid, aid, mAuth.getUid(), articleCommentBody.getText().toString());
 
-        // Set Article to Database
         newCommentRef.set(comment).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
@@ -296,6 +339,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             }
         });
     }
+
 
     /** Listeners */
 
@@ -328,15 +372,11 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             }.start();
         }
         else if(view == articleLikeClickable) {
-            if(likeClicked) {
-                showToast("Unliked");
-                likeClicked = false;
-                articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like));
+            if(!likeClicked) {
+                postLike();
             }
             else {
-                showToast("Liked");
-                likeClicked = true;
-                articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like_active));
+                postUnlike();
             }
         }
         else if(view == articleCommentClickable) {
