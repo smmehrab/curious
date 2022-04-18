@@ -205,6 +205,8 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/shape_comment_item"
                             android:orientation="vertical"
+                            android:gravity="center"
+                            android:layout_gravity="center"
                             android:paddingVertical="10dp">
 
                             <TextView
@@ -220,7 +222,10 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="horizontal">
+                                android:orientation="horizontal"
+                                android:gravity="center"
+                                android:layout_gravity="center"
+                                android:minHeight="40dp">
 
                                 <EditText
                                     android:id="@+id/article_comment_body"
@@ -230,9 +235,9 @@
                                     android:gravity="top"
                                     android:layout_width="0dp"
                                     android:layout_weight="6"
-                                    android:layout_height="match_parent"
-                                    android:background="@drawable/shape_line_rectangle"
-                                    android:minHeight="40dp"/>
+                                    android:layout_height="wrap_content"
+                                    android:minHeight="35dp"
+                                    android:background="@drawable/shape_line_rectangle" />
 
                                 <LinearLayout
                                     android:layout_width="0dp"
@@ -240,15 +245,27 @@
                                     android:layout_weight="0.5"/>
 
                                 <com.kusu.loadingbutton.LoadingButton
-                                    android:id="@+id/article_comment_post"
+                                    android:id="@+id/article_comment_post_loading"
                                     android:layout_width="0dp"
                                     android:layout_weight="2"
-                                    android:layout_height="40dp"
-                                    android:background="@drawable/button_background"
+                                    android:layout_height="35dp"
+                                    android:background="@drawable/button_black_round"
                                     android:textColor="@color/colorAccent"
                                     app:lb_buttonColor="@color/colorPrimary"
                                     app:lb_loaderColor="@color/colorAccent"
-                                    android:text="@string/txt_post"/>
+                                    android:clickable="false"
+                                    app:lb_isLoading="true"
+                                    android:visibility="gone"/>
+
+                                <Button
+                                    android:id="@+id/article_comment_post"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="2"
+                                    android:layout_height="35dp"
+                                    android:background="@drawable/button_black_round"
+                                    android:textColor="@color/colorAccent"
+                                    android:text="@string/txt_post"
+                                    android:visibility="visible"/>
 
                             </LinearLayout>
 

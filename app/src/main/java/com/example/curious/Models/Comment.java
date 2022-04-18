@@ -6,13 +6,16 @@ public class Comment {
     private String cid;
     private String aid;
     private String uid;
+    private String uname;
     private String text;
     private Object timestamp;
+    private String date;
 
-    public Comment(String cid, String aid, String uid, String text) {
+    public Comment(String cid, String aid, String uid, String uname, String text) {
         this.cid = cid;
         this.aid = aid;
         this.uid = uid;
+        this.uname = uname;
         this.text = text;
         this.timestamp = FieldValue.serverTimestamp();
     }
@@ -59,5 +62,21 @@ public class Comment {
 
     public void setTimestamp(Object timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getUname() {
+        return uname;
+    }
+
+    public void setUname(String uname) {
+        this.uname = uname;
     }
 }

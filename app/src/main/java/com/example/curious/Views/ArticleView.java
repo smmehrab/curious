@@ -5,6 +5,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
@@ -21,6 +23,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -35,6 +38,8 @@ import com.example.curious.Models.User;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteHelper;
+import com.example.curious.ViewModels.ArticleAdapter;
+import com.example.curious.ViewModels.CommentAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -61,7 +66,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
-public class ArticleView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener{
+public class ArticleView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, CommentAdapter.OnCommentClickListener {
 
     /** Article */
     private Article article;
@@ -97,8 +102,12 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
     LinearLayout articleCommentSection;
     TextView articleCommentUser;
     EditText articleCommentBody;
-    LoadingButton articleCommentPost;
+    Button articleCommentPost;
+    LoadingButton articleCommentPostLoading;
+
+    /** RecyclerView Variables */
     RecyclerView articleComments;
+    CommentAdapter articleCommentsAdapter;
 
     /** Navigation Drawer Variables */
     private DrawerLayout drawerLayout;
@@ -126,6 +135,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             onBackPressed();
         }
         else {
+            comments = new ArrayList<>();
             getActiveUser();
             setUI();
         }
@@ -178,6 +188,9 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         articleCommentUser = findViewById(R.id.article_comment_user);
         articleCommentBody = findViewById(R.id.article_comment_body);
         articleCommentPost = findViewById(R.id.article_comment_post);
+        articleCommentPostLoading = findViewById(R.id.article_comment_post_loading);
+
+        // Recycler View
         articleComments = findViewById(R.id.article_comments);
     }
 
@@ -211,6 +224,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             }
         });
 
+        articleComments.setLayoutManager(new LinearLayoutManager(this));
     }
 
     private void initializeArticle() {
@@ -232,6 +246,12 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
 
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
         profileEmailTextView.setText(activeUser.getEmail());
+
+        // Recycle View
+        articleComments.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        articleCommentsAdapter = new CommentAdapter(this, comments, this);
+        articleComments.setAdapter(articleCommentsAdapter);
+        articleCommentsAdapter.notifyDataSetChanged();
     }
 
     /** Set Article View */
@@ -360,20 +380,24 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         });
     }
 
-    /** Comment */
+    /** Comments */
 
     public void postComment() {
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         DocumentReference newCommentRef = database.collection("articles").document(aid).collection("comments").document();
 
         cid = newCommentRef.getId();
-        Comment comment = new Comment(cid, aid, mAuth.getUid(), articleCommentBody.getText().toString());
+        Comment comment = new Comment(cid, aid, mAuth.getUid(), Objects.requireNonNull(mAuth.getCurrentUser()).getDisplayName(), articleCommentBody.getText().toString());
 
         newCommentRef.set(comment).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
-                articleCommentPost.hideLoading();
+                articleCommentPost.setVisibility(View.VISIBLE);
+                articleCommentPostLoading.setVisibility(View.GONE);
+                articleCommentBody.setText("");
+
                 showToast("Comment Posted");
+                updateCommentCount();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -383,6 +407,41 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         });
     }
 
+    public void updateCommentCount() {
+        loadComments();
+    }
+
+    public void loadComments() {
+        comments = new ArrayList<>();
+
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        CollectionReference commentsRef = database.collection("articles").document(aid).collection("comments");
+        Query query = commentsRef.orderBy("timestamp", Query.Direction.DESCENDING);
+
+        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for(QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    Comment comment = documentSnapshot.toObject(Comment.class);
+                    Date date = documentSnapshot.getDate("timestamp");
+                    comment.setDate(DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date));
+                    comments.add(comment);
+                }
+
+                updateCommentsSection();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showToast("[ERROR] Couldn't Load Comments");
+            }
+        });
+    }
+
+    public void updateCommentsSection() {
+        // commentsLoading.setVisibility(View.GONE);
+        articleCommentsAdapter.updateCommentsAdapter(comments);
+    }
 
     /** Listeners */
 
@@ -423,19 +482,22 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             }
         }
         else if(view == articleCommentClickable) {
-            if(commentClicked) {
+            if(!commentClicked) {
+                articleCommentSection.setVisibility(View.VISIBLE);
+                commentClicked = true;
+                articleCommentImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_comment_active));
+                // commentsLoading.setVisibility(View.VISIBLE);
+                loadComments();
+            }
+            else {
                 articleCommentSection.setVisibility(View.GONE);
                 commentClicked = false;
                 articleCommentImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_comment));
             }
-            else {
-                articleCommentSection.setVisibility(View.VISIBLE);
-                commentClicked = true;
-                articleCommentImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_comment_active));
-            }
         }
         else if(view == articleCommentPost) {
-            articleCommentPost.showLoading();
+            articleCommentPostLoading.setVisibility(View.VISIBLE);
+            articleCommentPost.setVisibility(View.GONE);
             postComment();
         }
     }
@@ -482,6 +544,11 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onCommentClick(View view, int position) {
+        showToast("Comment Clicked " + position);
     }
 
     /** Authentication & Sign Out */

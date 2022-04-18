@@ -22,7 +22,6 @@
         android:elevation="4dp"
         android:orientation="vertical"
         android:visibility="visible"
-        android:paddingHorizontal="20dp"
         android:paddingVertical="10dp">
 
         <TextView
