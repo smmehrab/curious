@@ -269,7 +269,10 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                             @Override
                             public void onSuccess(Void unused) {
                                 showToast("Article Added Successfully");
-                                Intent intent = new Intent(NewArticleView.this, ArticlesView.class);
+                                Intent intent = null;
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                                    intent = new Intent(NewArticleView.this, ArticlesView.class);
+                                }
                                 startActivity(intent);
                             }
                         }).addOnFailureListener(new OnFailureListener() {
@@ -315,7 +318,10 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
             }.start();
         }
         else if(view == newArticleCancel) {
-            Intent intent = new Intent(NewArticleView.this, ArticlesView.class);
+            Intent intent = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                intent = new Intent(NewArticleView.this, ArticlesView.class);
+            }
             startActivity(intent);
             finish();
         }

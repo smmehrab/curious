@@ -5,7 +5,9 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,16 +17,19 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.curious.Models.Article;
+import com.example.curious.Models.Comment;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteHelper;
@@ -44,18 +49,21 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.kusu.loadingbutton.LoadingButton;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class ArticleView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener{
 
     /** Article */
-    Article article;
-    String check, aid, author, title, coverUrl, body, date;
-    Integer likeCount, viewCount;
-    String[] comments;
+    private Article article;
+    private String check, aid;
+    private ArrayList<Comment> comments;
+    private boolean likeClicked = false;
+    private boolean commentClicked = false;
 
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
@@ -80,6 +88,12 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
     LinearLayout articleCommentClickable;
     ImageView articleCommentImage;
     TextView articleCommentCount;
+
+    LinearLayout articleCommentSection;
+    TextView articleCommentUser;
+    EditText articleCommentBody;
+    LoadingButton articleCommentPost;
+    RecyclerView articleComments;
 
     /** Navigation Drawer Variables */
     private DrawerLayout drawerLayout;
@@ -154,6 +168,12 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         articleCommentClickable = findViewById(R.id.article_comment_clickable);
         articleCommentImage = findViewById(R.id.article_comment_image);
         articleCommentCount = findViewById(R.id.article_comment_count);
+
+        articleCommentSection = findViewById(R.id.article_comment_section);
+        articleCommentUser = findViewById(R.id.article_comment_user);
+        articleCommentBody = findViewById(R.id.article_comment_body);
+        articleCommentPost = findViewById(R.id.article_comment_post);
+        articleComments = findViewById(R.id.article_comments);
     }
 
     public void setToolbar(){
@@ -168,7 +188,24 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         drawerLayout.setDrawerListener(drawerToggle);
         userDrawerBtn.setOnClickListener(this);
         userNavigationView.setNavigationItemSelectedListener(this);
-        newArticleBtn.setOnClickListener(this);
+        articleLikeClickable.setOnClickListener(this);
+        articleCommentClickable.setOnClickListener(this);
+        articleCommentPost.setOnClickListener(this);
+
+        articleCommentBody.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus && TextUtils.isEmpty(articleCommentBody.getText().toString())){
+                    articleCommentBody.setText(getResources().getString(R.string.txt_share_your_comment));
+                    articleCommentBody.setTextColor(getResources().getColor(R.color.secondary_text));
+                }
+                else if (hasFocus && articleCommentBody.getText().toString().equals(getResources().getString(R.string.txt_share_your_comment))){
+                    articleCommentBody.setText("");
+                    articleCommentBody.setTextColor(getResources().getColor(R.color.primary_text));
+                }
+            }
+        });
+
     }
 
     private void initializeArticle() {
@@ -234,6 +271,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
 
     /** Listeners */
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onClick(View view) {
         if(view == userDrawerBtn) {
@@ -261,25 +299,29 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
                 }
             }.start();
         }
-        else if(view == newArticleBtn) {
-            new CountDownTimer(100, 20) {
-                int i;
-                @Override
-                public void onTick(long l) {
-                    if (i % 2 == 0) {
-                        newArticleBtn.setVisibility(View.INVISIBLE);
-                    } else {
-                        newArticleBtn.setVisibility(View.VISIBLE);
-                    }
-                    i++;
-                }
-
-                @Override
-                public void onFinish() {
-                    newArticleBtn.setVisibility(View.VISIBLE);
-                    Snackbar.make(drawerLayout, "New Article View", Snackbar.LENGTH_SHORT).show();
-                }
-            }.start();
+        else if(view == articleLikeClickable) {
+            if(likeClicked) {
+                showToast("Unliked");
+                likeClicked = false;
+                articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like));
+            }
+            else {
+                showToast("Liked");
+                likeClicked = true;
+                articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like_active));
+            }
+        }
+        else if(view == articleCommentClickable) {
+            if(commentClicked) {
+                articleCommentSection.setVisibility(View.GONE);
+                commentClicked = false;
+                articleCommentImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_comment));
+            }
+            else {
+                articleCommentSection.setVisibility(View.VISIBLE);
+                commentClicked = true;
+                articleCommentImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_comment_active));
+            }
         }
     }
 

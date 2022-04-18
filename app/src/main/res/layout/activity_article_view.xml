@@ -5,7 +5,8 @@
     android:id="@+id/article_drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Views.ArticleView">
+    tools:context=".Views.ArticleView"
+    android:background="@color/colorAccent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -35,7 +36,7 @@
                     android:id="@+id/article_cover"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
-                    android:src="@drawable/google_icon"/>
+                    android:src="@drawable/ic_load"/>
 
                 <LinearLayout
                     android:orientation="vertical"
@@ -116,12 +117,20 @@
                         android:layout_width="match_parent"
                         android:layout_height="20dp" />
 
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/secondary_text"
+                        android:layout_marginVertical="10dp"
+                        />
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:gravity="center"
                         android:orientation="horizontal"
-                        android:weightSum="2">
+                        android:weightSum="2"
+                        android:layout_gravity="center">
 
                         <LinearLayout
                             android:id="@+id/article_like_clickable"
@@ -130,7 +139,8 @@
                             android:layout_weight="1"
                             android:clickable="true"
                             android:focusable="true"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:paddingVertical="10dp">
 
                             <ImageView
                                 android:id="@+id/article_like_image"
@@ -156,7 +166,8 @@
                             android:layout_weight="1"
                             android:clickable="true"
                             android:focusable="true"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:paddingVertical="10dp">
 
                             <ImageView
                                 android:id="@+id/article_comment_image"
@@ -178,13 +189,82 @@
 
                     </LinearLayout>
 
+                    <View
+                        android:layout_marginVertical="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/secondary_text"/>
+
                     <LinearLayout
+                        android:id="@+id/article_comment_section"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:paddingHorizontal="10dp"
+                        android:visibility="gone">
 
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/shape_comment_item"
+                            android:orientation="vertical"
+                            android:paddingVertical="10dp">
 
+                            <TextView
+                                android:id="@+id/article_comment_user"
+                                android:textSize="14sp"
+                                android:textColor="@color/primary_text"
+                                android:text="Yamin Rupom"
+                                android:gravity="center_vertical"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="10dp"/>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <EditText
+                                    android:id="@+id/article_comment_body"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/secondary_text"
+                                    android:text="@string/txt_share_your_comment"
+                                    android:gravity="top"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="6"
+                                    android:layout_height="match_parent"
+                                    android:background="@drawable/shape_line_rectangle"
+                                    android:minHeight="40dp"/>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_weight="0.5"/>
+
+                                <com.kusu.loadingbutton.LoadingButton
+                                    android:id="@+id/article_comment_post"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="2"
+                                    android:layout_height="40dp"
+                                    android:background="@drawable/button_background"
+                                    android:textColor="@color/colorAccent"
+                                    app:lb_buttonColor="@color/colorPrimary"
+                                    app:lb_loaderColor="@color/colorAccent"
+                                    android:text="@string/txt_post"/>
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/article_comments"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp">
+
+                        </androidx.recyclerview.widget.RecyclerView>
 
                     </LinearLayout>
 
