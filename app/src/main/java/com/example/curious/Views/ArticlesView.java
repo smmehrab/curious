@@ -149,9 +149,13 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                 else {
                     showToast("[ERROR - Firestore] Couldn't Read User Role");
                 }
-                showToast(Boolean.toString(isModerator));
+                updateViewBasedOnRole();
             }
         });
+    }
+
+    public void updateViewBasedOnRole() {
+        userNavigationView.getMenu().findItem(R.id.user_moderate_option).setVisible(isModerator);
     }
 
     void setUI(){
@@ -436,6 +440,9 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             Snackbar.make(drawerLayout, "Profile View", Snackbar.LENGTH_SHORT).show();
             // Intent intent = new Intent(getApplicationContext(), ProfileView.class);
             // startActivity(intent);
+        }
+        else if(id == R.id.user_moderate_option) {
+            showToast("ModerateView");
         }
         else if (id == R.id.user_articles_option) {
             startActivity(getIntent());

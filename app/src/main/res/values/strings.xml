@@ -119,5 +119,6 @@
     <string name="txt_refresh">Refresh</string>
     <string name="txt_share_your_comment">Share Your Comment</string>
     <string name="txt_save">Save</string>
+    <string name="txt_moderate">Moderate</string>
 
 </resources>
