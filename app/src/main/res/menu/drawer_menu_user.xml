@@ -19,7 +19,7 @@
 
         <item
             android:id="@+id/user_saved_option"
-            android:icon="@drawable/ic_saved"
+            android:icon="@drawable/ic_save_active"
             android:title="@string/txt_saved"/>
 
     </group>

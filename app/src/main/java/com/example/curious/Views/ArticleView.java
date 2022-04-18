@@ -25,7 +25,6 @@ import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -36,11 +35,9 @@ import android.widget.Toast;
 import com.example.curious.Models.Article;
 import com.example.curious.Models.Comment;
 import com.example.curious.Models.Like;
-import com.example.curious.Models.User;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteHelper;
-import com.example.curious.ViewModels.ArticleAdapter;
 import com.example.curious.ViewModels.CommentAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -59,7 +56,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firestore.v1.WriteResult;
 import com.kusu.loadingbutton.LoadingButton;
 import com.squareup.picasso.Picasso;
 
@@ -76,6 +72,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
     private ArrayList<Comment> comments;
     private boolean likeClicked = false;
     private boolean commentClicked = false;
+    private boolean saveClicked = false;
 
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
@@ -94,12 +91,18 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
     TextView articleAuthor;
     TextView articleViews;
     TextView articleBody;
+
     LinearLayout articleLikeClickable;
     ImageView articleLikeImage;
     TextView articleLikeCount;
+
     LinearLayout articleCommentClickable;
     ImageView articleCommentImage;
     TextView articleCommentCount;
+
+    LinearLayout articleSaveClickable;
+    ImageView articleSaveImage;
+    TextView articleSaveText;
 
     LinearLayout articleCommentSection;
     TextView articleCommentUser;
@@ -179,12 +182,18 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         articleAuthor = findViewById(R.id.article_author);
         articleViews = findViewById(R.id.article_views);
         articleBody = findViewById(R.id.article_body);
+
         articleLikeClickable = findViewById(R.id.article_like_clickable);
         articleLikeImage = findViewById(R.id.article_like_image);
         articleLikeCount = findViewById(R.id.article_like_count);
+
         articleCommentClickable = findViewById(R.id.article_comment_clickable);
         articleCommentImage = findViewById(R.id.article_comment_image);
         articleCommentCount = findViewById(R.id.article_comment_count);
+
+        articleSaveClickable = findViewById(R.id.article_save_clickable);
+        articleSaveImage = findViewById(R.id.article_save_image);
+        articleSaveText = findViewById(R.id.article_save_text);
 
         articleCommentSection = findViewById(R.id.article_comment_section);
         articleCommentUser = findViewById(R.id.article_comment_user);
@@ -208,8 +217,11 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         drawerLayout.setDrawerListener(drawerToggle);
         userDrawerBtn.setOnClickListener(this);
         userNavigationView.setNavigationItemSelectedListener(this);
+
         articleLikeClickable.setOnClickListener(this);
         articleCommentClickable.setOnClickListener(this);
+        articleSaveClickable.setOnClickListener(this);
+
         articleCommentPost.setOnClickListener(this);
 
         articleCommentBody.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -299,6 +311,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         articleCommentUser.setText(mAuth.getCurrentUser().getDisplayName());
 
         initLike();
+        initSave();
     }
 
     /** Load Article */
@@ -334,6 +347,8 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         Query query = database.collection("articles").document(aid).collection("likes").whereEqualTo("aid", aid).whereEqualTo("uid", mAuth.getUid());
 
+        articleLikeClickable.setClickable(false);
+
         query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @SuppressLint("UseCompatLoadingForDrawables")
             @Override
@@ -356,11 +371,11 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
 
     public void postLike() {
         FirebaseFirestore database = FirebaseFirestore.getInstance();
-        DocumentReference newCommentRef = database.collection("articles").document(aid).collection("likes").document();
+        DocumentReference newLikeRef = database.collection("articles").document(aid).collection("likes").document();
 
         Like like = new Like(aid, mAuth.getUid());
 
-        newCommentRef.set(like).addOnSuccessListener(new OnSuccessListener<Void>() {
+        newLikeRef.set(like).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
                 updateLikeCount(1);
@@ -483,6 +498,70 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         articleCommentsAdapter.updateCommentsAdapter(comments);
     }
 
+    /** Save */
+
+    public void initSave() {
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        Query query = database.collection("users").document(Objects.requireNonNull(mAuth.getUid())).collection("savedArticles").whereEqualTo("aid", aid);
+
+        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    if(queryDocumentSnapshots.size()>0) {
+                        saveClicked = true;
+                        articleSaveImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_active));
+                        articleSaveText.setText("Saved");
+                    }
+                    else {
+                        saveClicked = false;
+                        articleSaveImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save));
+                        articleSaveText.setText("Save");
+                    }
+                }
+            }
+        });
+    }
+
+    public void saveArticle(){
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        DocumentReference savedArticleRef = database.collection("users").document(Objects.requireNonNull(mAuth.getUid())).collection("savedArticles").document(aid);
+
+        savedArticleRef.set(article).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onSuccess(Void unused) {
+                articleSaveText.setText("Saved");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showToast("[ERROR - FIRESTORE] " + e.toString());
+            }
+        });
+    }
+
+    public void discardArticle(){
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        Query query = database.collection("users").document(Objects.requireNonNull(mAuth.getUid())).collection("savedArticles").whereEqualTo("aid", aid);
+
+        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    documentSnapshot.getReference().delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @SuppressLint("SetTextI18n")
+                        @Override
+                        public void onSuccess(Void unused) {
+                            articleSaveText.setText("Save");
+                        }
+                    });
+                }
+            }
+        });
+    }
+
     /** Listeners */
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -524,7 +603,6 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
                 articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like));
                 postUnlike();
             }
-            articleLikeClickable.setClickable(false);
         }
         else if(view == articleCommentClickable) {
             if(!commentClicked) {
@@ -538,6 +616,18 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
                 articleCommentSection.setVisibility(View.GONE);
                 commentClicked = false;
                 articleCommentImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_comment));
+            }
+        }
+        else if(view == articleSaveClickable) {
+            if(!saveClicked) {
+                saveClicked = true;
+                articleSaveImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_active));
+                saveArticle();
+            }
+            else {
+                saveClicked = false;
+                articleSaveImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save));
+                discardArticle();
             }
         }
         else if(view == articleCommentPost) {
