@@ -234,6 +234,21 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         profileEmailTextView.setText(activeUser.getEmail());
     }
 
+    /** Set Article View */
+
+    public void setArticleView(Article article) {
+        Picasso.get().load(article.getCoverUrl()).into(articleCover);
+        articleDate.setText(article.getDate());
+        articleTitle.setText(article.getTitle());
+        articleAuthor.setText(article.getUid());
+        articleViews.setText(String.valueOf(article.getViewCount()) + " Views");
+        articleBody.setText(article.getBody());
+        articleLikeCount.setText(String.valueOf(article.getLikeCount()));
+        articleCommentCount.setText(String.valueOf(article.getCommentCount()));
+
+        initLike();
+    }
+
     /** Load Article */
 
     public void loadArticle(String aid) {
@@ -261,20 +276,28 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
          });
     }
 
-    /** Set Article View */
-
-    public void setArticleView(Article article) {
-        Picasso.get().load(article.getCoverUrl()).into(articleCover);
-        articleDate.setText(article.getDate());
-        articleTitle.setText(article.getTitle());
-        articleAuthor.setText(article.getUid());
-        articleViews.setText(String.valueOf(article.getViewCount()) + " Views");
-        articleBody.setText(article.getBody());
-        articleLikeCount.setText(String.valueOf(article.getLikeCount()));
-        articleCommentCount.setText(String.valueOf(article.getCommentCount()));
-    }
-
     /** Like */
+
+    public void initLike() {
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        Query query = database.collection("articles").document(aid).collection("likes").whereEqualTo("aid", aid).whereEqualTo("uid", mAuth.getUid());
+
+        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                // Already liked by this user
+                if(queryDocumentSnapshots.size() > 0) {
+                    likeClicked = true;
+                    articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like_active));
+                }
+                // Not yet liked by this user
+                else {
+                    likeClicked = false;
+                    articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like));
+                }
+            }
+        });
+    }
 
     public void postLike() {
         FirebaseFirestore database = FirebaseFirestore.getInstance();
