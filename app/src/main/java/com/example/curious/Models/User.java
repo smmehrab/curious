@@ -15,6 +15,10 @@ public class User {
         this.device = device;
     }
 
+    public User() {
+
+    }
+
     public String getUid() {
         return uid;
     }

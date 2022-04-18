@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.curious.Models.Article;
+import com.example.curious.Models.User;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteHelper;
@@ -59,6 +60,7 @@ import com.squareup.picasso.Picasso;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class ArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
@@ -80,6 +82,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     private Integer numberOfDocumentsPerQuery=10;
     private DocumentSnapshot lastArticle;
     private Integer pageCount = 0;
+    private boolean isModerator = false;
 
     /** Navigation Drawer Variables */
     private DrawerLayout drawerLayout;
@@ -120,32 +123,35 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             showToast("No Internet Connection");
         }
 
-        /*
-        // Debug
-        // Load Articles from database
         articles = new ArrayList<>();
-
-        // Adding new elements to the ArrayList
-        articles.add(new Article("1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", getResources().getString(R.string.txt_article_body)));
-        articles.add(new Article("1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body"));
-        articles.add(new Article("1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles Articles"));
-        articles.add(new Article("1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body"));
-        articles.add(new Article("1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body"));
-        articles.add(new Article("1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body"));
-        articles.add(new Article("1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body"));
-        articles.add(new Article("1", "title of the article", "https://images.news18.com/ibnlive/uploads/2020/11/1605257234_google_photos_logo.jpg", "article body body body"));
-        */
-
-        articles = new ArrayList<>();
-
-        activateUser();
+        getActiveUser();
         setUI();
     }
 
-    public void activateUser(){
+    public void getActiveUser() {
         SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
         activeUser = sqLiteDatabaseHelper.getUser();
+
+        getActiveUserRole();
+    }
+
+    public void getActiveUserRole() {
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        DocumentReference moderatorRef = database.collection("moderators").document(activeUser.getUid());
+
+        moderatorRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    isModerator = task.getResult().exists();
+                }
+                else {
+                    showToast("[ERROR - Firestore] Couldn't Read User Role");
+                }
+                showToast(Boolean.toString(isModerator));
+            }
+        });
     }
 
     void setUI(){
