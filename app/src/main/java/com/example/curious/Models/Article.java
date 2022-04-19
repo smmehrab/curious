@@ -13,18 +13,20 @@ public class Article {
     private String title;
     private String coverUrl;
     private String body;
+    private String uname;
     private String date;
     private Object timestamp;
     private Integer likeCount;
     private Integer viewCount;
     private Integer commentCount;
 
-    public Article(String aid, String uid, String title, String coverUrl, String body) {
+    public Article(String aid, String uid, String title, String coverUrl, String body, String uname) {
         this.aid = aid;
         this.uid = uid;
         this.title = title;
         this.coverUrl = coverUrl;
         this.body = body;
+        this.uname = uname;
         this.date = "";
         this.timestamp = FieldValue.serverTimestamp();
         this.likeCount = 0;
@@ -114,5 +116,13 @@ public class Article {
 
     public void setCommentCount(Integer commentCount) {
         this.commentCount = commentCount;
+    }
+
+    public String getUname() {
+        return uname;
+    }
+
+    public void setUname(String uname) {
+        this.uname = uname;
     }
 }

@@ -303,7 +303,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         Picasso.get().load(article.getCoverUrl()).into(articleCover);
         articleDate.setText(article.getDate());
         articleTitle.setText(article.getTitle());
-        articleAuthor.setText(article.getUid());
+        articleAuthor.setText(article.getUname());
         articleViews.setText(String.valueOf(article.getViewCount()) + " Views");
         articleBody.setText(article.getBody());
         articleLikeCount.setText(String.valueOf(article.getLikeCount()));
@@ -740,7 +740,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
 
     public void showToast(String message){
         Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 30);
         toast.show();
     }
 

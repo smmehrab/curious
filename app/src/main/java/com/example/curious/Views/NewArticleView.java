@@ -53,7 +53,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
 
     /** Article */
     Article article;
-    String aid, uid, title, body, coverUrl, date;
+    String aid, uid, title, body, coverUrl, uname, date;
     Integer likeCount, viewCount;
     List<Comment> comments;
     Uri coverUri;
@@ -264,13 +264,14 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                         title = newArticleTitle.getText().toString();
                         body = newArticleBody.getText().toString();
                         uid = activeUser.getUid().toString();
-                        article = new Article(aid, uid, title, coverUrl, body);
+                        uname = activeUser.getName();
+                        article = new Article(aid, uid, title, coverUrl, body, uname);
 
                         // Set Article to Database
                         newArticleRef.set(article).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                showToast("Article Added Successfully");
+                                showToast("[POSTED] Pending for Verification");
                                 Intent intent = null;
                                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                                     intent = new Intent(NewArticleView.this, ArticlesView.class);

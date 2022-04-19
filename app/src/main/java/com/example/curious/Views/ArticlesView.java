@@ -268,7 +268,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     public void loadArticles(String mode) {
         newArticles = new ArrayList<>();
 
-        // Initialize Firestore
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         CollectionReference articlesRef = database.collection("articles");
 
@@ -279,7 +278,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             query = nextQuery;
         }
 
-        // Query
         query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot documentSnapshots) {
@@ -318,7 +316,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             articleAdapter.updateArticlesAdapter(articles);
         }
         else if(mode.equals("no_more")) {
-            showToast("No More Older Articles Found");
+            showToast("No Articles Found");
         }
 
         if(articles.size()<numberOfDocumentsPerQuery) {
@@ -367,7 +365,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
     public void showToast(String message){
         Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 30);
         toast.show();
     }
 
@@ -416,7 +414,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onFinish() {
                     newArticleBtn.setVisibility(View.VISIBLE);
-                    // Snackbar.make(drawerLayout, "New Article View", Snackbar.LENGTH_SHORT).show();
                     Intent intent = new Intent(ArticlesView.this, NewArticleView.class);
                     startActivity(intent);
                 }

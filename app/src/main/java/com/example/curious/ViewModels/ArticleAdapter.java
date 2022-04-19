@@ -52,7 +52,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleV
         Picasso.get().load(articles.get(position).getCoverUrl()).into(holder.cover);
         holder.date.setText(articles.get(position).getDate());
         holder.title.setText(articles.get(position).getTitle());
-        holder.author.setText(articles.get(position).getUid());
+        holder.author.setText(articles.get(position).getUname());
         holder.views.setText(articles.get(position).getViewCount().toString() + " Views");
     }
 
