@@ -2,6 +2,7 @@ package com.example.curious.Views;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -90,6 +91,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     static int PReqCode = 1;
     static int ReqCode = 1;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -242,7 +244,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     public void postArticleToFirestore() {
         // Initialize new article document on database
         FirebaseFirestore database = FirebaseFirestore.getInstance();
-        DocumentReference newArticleRef = database.collection("articles").document();
+        DocumentReference newArticleRef = database.collection("pendingArticles").document();
 
         // Get & Set aid
         aid = newArticleRef.getId();
@@ -351,6 +353,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     }
 
     /** Others */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(NewArticleView.this, ArticlesView.class);

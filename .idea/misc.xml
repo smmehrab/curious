@@ -65,6 +65,7 @@
         <entry key="app/src/main/res/layout/activity_auth_view.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/layout/activity_moderate_articles_view.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_new_article_view.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/layout/custom_journal_item.xml" value="0.340625" />
         <entry key="app/src/main/res/layout/drawer_header_home.xml" value="0.18177083333333333" />
