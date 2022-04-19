@@ -224,7 +224,7 @@ public class ModerateArticleView extends AppCompatActivity implements View.OnCli
         Picasso.get().load(article.getCoverUrl()).into(articleCover);
         articleDate.setText(article.getDate());
         articleTitle.setText(article.getTitle());
-        articleAuthor.setText(article.getUid());
+        articleAuthor.setText(article.getUname());
         articleBody.setText(article.getBody());
     }
 
