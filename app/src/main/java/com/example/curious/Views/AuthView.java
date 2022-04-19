@@ -15,6 +15,9 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -42,7 +45,7 @@ import com.kusu.loadingbutton.LoadingButton;
 
 import java.util.Objects;
 
-public class AuthView extends AppCompatActivity implements View.OnClickListener {
+public class AuthView extends AppCompatActivity implements View.OnClickListener, Animation.AnimationListener {
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
 
@@ -56,6 +59,8 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
     /** Button */
     private LinearLayout signInWithGoogle;
     private LoadingButton signInWithGoogleLoading;
+    private Animation anim;
+    private ImageView logo;
 
     /** SQLite Variable */
     SQLiteHelper sqLiteDatabaseHelper;
@@ -105,6 +110,25 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
         startActivity(intent);
     }
 
+
+    /** Animation */
+    @Override
+    public void onAnimationStart(Animation animation) {
+
+    }
+
+    public void onAnimationEnd(Animation animation) {
+        if (animation == anim) {
+            signInWithGoogle.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onAnimationRepeat(Animation animation) {
+
+    }
+
+
     /** UI */
 
     void setUI(){
@@ -116,6 +140,12 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
     void findXmlElements() {
         signInWithGoogle = (LinearLayout) findViewById(R.id.sign_in_with_google);
         signInWithGoogleLoading = findViewById(R.id.sign_in_with_google_loading);
+        logo = findViewById(R.id.auth_logo);
+
+        anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.zoom_in);
+
+        anim.setAnimationListener(this);
+        logo.startAnimation(anim);
     }
 
     void setListeners() {
