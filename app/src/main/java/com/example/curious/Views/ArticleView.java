@@ -64,7 +64,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
-public class ArticleView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, CommentAdapter.OnCommentClickListener {
+public class ArticleView extends AppCompatActivity implements View.OnClickListener, CommentAdapter.OnCommentClickListener {
 
     /** Article */
     private Article article;
@@ -73,6 +73,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
     private boolean likeClicked = false;
     private boolean commentClicked = false;
     private boolean saveClicked = false;
+    private String previousView = "Articles";
 
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
@@ -114,13 +115,6 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
     RecyclerView articleComments;
     CommentAdapter articleCommentsAdapter;
 
-    /** Navigation Drawer Variables */
-    private DrawerLayout drawerLayout;
-    private ActionBarDrawerToggle drawerToggle;
-    private NavigationView userNavigationView;
-    private ImageView profilePictureImageView;
-    private TextView profileEmailTextView;
-
     /** Toolbar Variables */
     private androidx.appcompat.widget.Toolbar toolbar;
     private Button userDrawerBtn;
@@ -161,19 +155,11 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
     }
 
     public void findXmlElements() {
-        // Parent Layout
-        drawerLayout = (DrawerLayout) findViewById(R.id.article_drawer_layout);
-
         // Toolbar
         toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.article_toolbar);
         userDrawerBtn = (Button) findViewById(R.id.user_drawer_btn);
         activityTitle = (TextView) findViewById(R.id.activity_title);
         newArticleBtn = (Button) findViewById(R.id.new_article_btn);
-
-        // Navigation Drawer
-        userNavigationView = (NavigationView) findViewById(R.id.user_navigation_view);
-        profilePictureImageView = (ImageView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_picture);
-        profileEmailTextView = (TextView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_email);
 
         // View Variables
         articleCover = findViewById(R.id.article_cover);
@@ -209,15 +195,12 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        userDrawerBtn.setVisibility(View.INVISIBLE);
         newArticleBtn.setVisibility(View.INVISIBLE);
         activityTitle.setText(R.string.txt_view_article);
     }
 
     public void setListeners(){
-        drawerLayout.setDrawerListener(drawerToggle);
-        userDrawerBtn.setOnClickListener(this);
-        userNavigationView.setNavigationItemSelectedListener(this);
-
         articleLikeClickable.setOnClickListener(this);
         articleCommentClickable.setOnClickListener(this);
         articleSaveClickable.setOnClickListener(this);
@@ -274,10 +257,12 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         Intent intent = getIntent();
         check = intent.getStringExtra("status");
         if(check.equals("view_article")) {
+            previousView = "Articles";
             aid = intent.getStringExtra("view_article_aid");
             loadArticle(aid);
         }
         else if(check.equals("view_saved_article")) {
+            previousView = "SavedArticles";
             aid = intent.getStringExtra("view_saved_article_aid");
             loadArticle(aid);
         }
@@ -290,9 +275,6 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         mAuth = FirebaseAuth.getInstance();
         networkReceiver = new NetworkReceiver();
         broadcastIntent();
-
-        Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
-        profileEmailTextView.setText(activeUser.getEmail());
 
         // Recycle View
         articleComments.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -571,32 +553,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onClick(View view) {
-        if(view == userDrawerBtn) {
-            new CountDownTimer(100, 20) {
-                int i;
-                @Override
-                public void onTick(long l) {
-                    if (i % 2 == 0) {
-                        userDrawerBtn.setVisibility(View.INVISIBLE);
-                    } else {
-                        userDrawerBtn.setVisibility(View.VISIBLE);
-                    }
-                    i++;
-                }
-
-                @Override
-                public void onFinish() {
-                    userDrawerBtn.setVisibility(View.VISIBLE);
-                    if (drawerLayout.isDrawerOpen(userNavigationView)) {
-                        drawerLayout.closeDrawer(userNavigationView);
-                    }
-                    else if (!drawerLayout.isDrawerOpen(userNavigationView)) {
-                        drawerLayout.openDrawer(userNavigationView);
-                    }
-                }
-            }.start();
-        }
-        else if(view == articleLikeClickable) {
+        if(view == articleLikeClickable) {
             if(!likeClicked) {
                 likeClicked = true;
                 articleLikeImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_like_active));
@@ -639,52 +596,6 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             articleCommentPost.setVisibility(View.GONE);
             postComment();
         }
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.user_profile_option) {
-            Snackbar.make(drawerLayout, "Profile View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), ProfileView.class);
-            // startActivity(intent);
-        }
-        else if (id == R.id.user_articles_option) {
-            Intent intent = null;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                intent = new Intent(ArticleView.this, ArticlesView.class);
-            }
-            startActivity(intent);
-            finish();
-        }
-        else if (id == R.id.user_saved_option) {
-            Intent intent = null;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                intent = new Intent(getApplicationContext(), SavedArticlesView.class);
-            }
-            startActivity(intent);
-        }
-
-        else if (id == R.id.user_settings_option) {
-            Snackbar.make(drawerLayout, "Settings View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), SettingsView.class);
-            // startActivity(intent);
-        }
-        else if (id == R.id.user_about_option) {
-            Snackbar.make(drawerLayout, "About View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), AboutView.class);
-            // startActivity(intent);
-        }
-        else if (id == R.id.user_sign_out_option) {
-            if(!isConnectedToInternet())
-                Snackbar.make(drawerLayout, "Can't Sign Out Without Internet Access!", Snackbar.LENGTH_SHORT).show();
-            else
-                signOut();
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     @Override
@@ -732,7 +643,12 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
     public void onBackPressed() {
         Intent intent = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            intent = new Intent(ArticleView.this, ArticlesView.class);
+            if(previousView.equals("Articles")) {
+                intent = new Intent(ArticleView.this, ArticlesView.class);
+            }
+            else if(previousView.equals("SavedArticles")) {
+                intent = new Intent(ArticleView.this, SavedArticlesView.class);
+            }
         }
         startActivity(intent);
         finish();

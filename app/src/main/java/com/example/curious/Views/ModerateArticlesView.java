@@ -277,19 +277,9 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
 
     @Override
     public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            super.finish();
-            moveTaskToBack(true);
-            return;
-        }
-        this.doubleBackToExitPressedOnce = true;
-        showToast("Press Once Again to EXIT");
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce=false;
-            }
-        }, 2000);
+        Intent intent = new Intent(getApplicationContext(), ArticlesView.class);
+        startActivity(intent);
+        finish();
     }
 
     @Override

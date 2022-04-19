@@ -66,7 +66,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
-public class ModerateArticleView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class ModerateArticleView extends AppCompatActivity implements View.OnClickListener {
 
     /** Article */
     private Article article;
@@ -101,13 +101,6 @@ public class ModerateArticleView extends AppCompatActivity implements View.OnCli
     TextView articleDiscardText;
 
     LoadingButton articleLoading;
-
-    /** Navigation Drawer Variables */
-    private DrawerLayout drawerLayout;
-    private ActionBarDrawerToggle drawerToggle;
-    private NavigationView userNavigationView;
-    private ImageView profilePictureImageView;
-    private TextView profileEmailTextView;
 
     /** Toolbar Variables */
     private androidx.appcompat.widget.Toolbar toolbar;
@@ -148,19 +141,11 @@ public class ModerateArticleView extends AppCompatActivity implements View.OnCli
     }
 
     public void findXmlElements() {
-        // Parent Layout
-        drawerLayout = (DrawerLayout) findViewById(R.id.moderate_article_drawer_layout);
-
         // Toolbar
         toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.moderate_article_toolbar);
         userDrawerBtn = (Button) findViewById(R.id.user_drawer_btn);
         activityTitle = (TextView) findViewById(R.id.activity_title);
         newArticleBtn = (Button) findViewById(R.id.new_article_btn);
-
-        // Navigation Drawer
-        userNavigationView = (NavigationView) findViewById(R.id.user_navigation_view);
-        profilePictureImageView = (ImageView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_picture);
-        profileEmailTextView = (TextView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_email);
 
         // View Variables
         articleCover = findViewById(R.id.moderate_article_cover);
@@ -184,15 +169,12 @@ public class ModerateArticleView extends AppCompatActivity implements View.OnCli
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        userDrawerBtn.setVisibility(View.INVISIBLE);
         newArticleBtn.setVisibility(View.INVISIBLE);
         activityTitle.setText(R.string.txt_moderate);
     }
 
     public void setListeners(){
-        drawerLayout.setDrawerListener(drawerToggle);
-        userDrawerBtn.setOnClickListener(this);
-        userNavigationView.setNavigationItemSelectedListener(this);
-
         articleVerifyClickable.setOnClickListener(this);
         articleDiscardClickable.setOnClickListener(this);
     }
@@ -213,9 +195,6 @@ public class ModerateArticleView extends AppCompatActivity implements View.OnCli
         mAuth = FirebaseAuth.getInstance();
         networkReceiver = new NetworkReceiver();
         broadcastIntent();
-
-        Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
-        profileEmailTextView.setText(activeUser.getEmail());
     }
 
     /** Set Article View */
@@ -321,32 +300,7 @@ public class ModerateArticleView extends AppCompatActivity implements View.OnCli
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onClick(View view) {
-        if(view == userDrawerBtn) {
-            new CountDownTimer(100, 20) {
-                int i;
-                @Override
-                public void onTick(long l) {
-                    if (i % 2 == 0) {
-                        userDrawerBtn.setVisibility(View.INVISIBLE);
-                    } else {
-                        userDrawerBtn.setVisibility(View.VISIBLE);
-                    }
-                    i++;
-                }
-
-                @Override
-                public void onFinish() {
-                    userDrawerBtn.setVisibility(View.VISIBLE);
-                    if (drawerLayout.isDrawerOpen(userNavigationView)) {
-                        drawerLayout.closeDrawer(userNavigationView);
-                    }
-                    else if (!drawerLayout.isDrawerOpen(userNavigationView)) {
-                        drawerLayout.openDrawer(userNavigationView);
-                    }
-                }
-            }.start();
-        }
-        else if(view == articleVerifyClickable) {
+        if(view == articleVerifyClickable) {
             if(!verifyClicked) {
                 verifyClicked = true;
                 articleVerifyImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_verify_active));
@@ -364,50 +318,6 @@ public class ModerateArticleView extends AppCompatActivity implements View.OnCli
                 discardArticle("");
             }
         }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.user_profile_option) {
-            Snackbar.make(drawerLayout, "Profile View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), ProfileView.class);
-            // startActivity(intent);
-        }
-        else if(id == R.id.user_moderate_option) {
-            onBackPressed();
-        }
-        else if (id == R.id.user_articles_option) {
-            Intent intent = new Intent(ModerateArticleView.this, ArticlesView.class);
-            startActivity(intent);
-        }
-        else if (id == R.id.user_saved_option) {
-            Snackbar.make(drawerLayout, "Saved Articles View", Snackbar.LENGTH_SHORT).show();
-            Intent intent = new Intent(getApplicationContext(), SavedArticlesView.class);
-            startActivity(intent);
-        }
-
-        else if (id == R.id.user_settings_option) {
-            Snackbar.make(drawerLayout, "Settings View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), SettingsView.class);
-            // startActivity(intent);
-        }
-        else if (id == R.id.user_about_option) {
-            Snackbar.make(drawerLayout, "About View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), AboutView.class);
-            // startActivity(intent);
-        }
-        else if (id == R.id.user_sign_out_option) {
-            if(!isConnectedToInternet())
-                Snackbar.make(drawerLayout, "Can't Sign Out Without Internet Access!", Snackbar.LENGTH_SHORT).show();
-            else
-                signOut();
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     /** Authentication & Sign Out */
