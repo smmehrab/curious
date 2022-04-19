@@ -30,6 +30,8 @@
         <entry key="app/src/main/res/drawable/ic_baseline_article_24.xml" value="0.19" />
         <entry key="app/src/main/res/drawable/ic_comment.xml" value="0.19" />
         <entry key="app/src/main/res/drawable/ic_comment_active.xml" value="0.19" />
+        <entry key="app/src/main/res/drawable/ic_discard.xml" value="0.346" />
+        <entry key="app/src/main/res/drawable/ic_discard_active.xml" value="0.346" />
         <entry key="app/src/main/res/drawable/ic_drawer.xml" value="0.19" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.175" />
         <entry key="app/src/main/res/drawable/ic_like.xml" value="0.19" />
@@ -42,6 +44,8 @@
         <entry key="app/src/main/res/drawable/ic_saved.xml" value="0.346" />
         <entry key="app/src/main/res/drawable/ic_settings.xml" value="0.346" />
         <entry key="app/src/main/res/drawable/ic_sign_out.xml" value="0.346" />
+        <entry key="app/src/main/res/drawable/ic_verify.xml" value="0.346" />
+        <entry key="app/src/main/res/drawable/ic_verify_active.xml" value="0.346" />
         <entry key="app/src/main/res/drawable/icon_add_solid.xml" value="0.19" />
         <entry key="app/src/main/res/drawable/icon_delete.xml" value="0.172" />
         <entry key="app/src/main/res/drawable/icon_edit.xml" value="0.172" />
@@ -65,6 +69,7 @@
         <entry key="app/src/main/res/layout/activity_auth_view.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/layout/activity_moderate_article_view.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_moderate_articles_view.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_new_article_view.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/layout/custom_journal_item.xml" value="0.340625" />

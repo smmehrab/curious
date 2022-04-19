@@ -121,5 +121,6 @@
     <string name="txt_save">Save</string>
     <string name="txt_moderate">Moderate</string>
     <string name="txt_moderate_articles">Pending Articles</string>
+    <string name="txt_verify">Verify</string>
 
 </resources>

@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Curious">
         <activity
+            android:name=".Views.ModerateArticleView"
+            android:exported="false" />
+        <activity
             android:name=".Views.ModerateArticlesView"
             android:exported="false" />
         <activity

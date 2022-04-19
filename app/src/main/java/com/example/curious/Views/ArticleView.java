@@ -542,7 +542,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
         });
     }
 
-    public void discardArticle(){
+    public void unsaveArticle(){
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         Query query = database.collection("users").document(Objects.requireNonNull(mAuth.getUid())).collection("savedArticles").whereEqualTo("aid", aid);
 
@@ -627,7 +627,7 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             else {
                 saveClicked = false;
                 articleSaveImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save));
-                discardArticle();
+                unsaveArticle();
             }
         }
         else if(view == articleCommentPost) {

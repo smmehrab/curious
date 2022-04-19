@@ -2,7 +2,6 @@ package com.example.curious.Views;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -10,7 +9,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -23,22 +21,26 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.curious.Models.Article;
-import com.example.curious.Models.User;
+import com.example.curious.Models.Comment;
+import com.example.curious.Models.Like;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteHelper;
-import com.example.curious.ViewModels.ArticleAdapter;
+import com.example.curious.ViewModels.CommentAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -59,17 +61,19 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.kusu.loadingbutton.LoadingButton;
 import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
-@RequiresApi(api = Build.VERSION_CODES.M)
-public class ModerateArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
+public class ModerateArticleView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
-    ArrayList<Article> articles;
-    ArrayList<Article> newArticles;
+    /** Article */
+    private Article article;
+    private String check, aid;
+    private boolean verifyClicked = false;
+    private boolean discardClicked = false;
+    private boolean isModerator = true;
 
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
@@ -80,9 +84,23 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth.AuthStateListener mAuthListener;
     GoogleSignInOptions googleSignInOptions;
-    private Query query;
-    private Integer numberOfDocumentsPerQuery=10;
-    private boolean isModerator = true;
+
+    /** View Variables */
+    ImageView articleCover;
+    TextView articleDate;
+    TextView articleTitle;
+    TextView articleAuthor;
+    TextView articleBody;
+
+    LinearLayout articleVerifyClickable;
+    ImageView articleVerifyImage;
+    TextView articleVerifyText;
+
+    LinearLayout articleDiscardClickable;
+    ImageView articleDiscardImage;
+    TextView articleDiscardText;
+
+    LoadingButton articleLoading;
 
     /** Navigation Drawer Variables */
     private DrawerLayout drawerLayout;
@@ -97,36 +115,25 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
     private Button newArticleBtn;
     private TextView activityTitle;
 
-    /** RecyclerView Variables */
-    RecyclerView articlesRecyclerView;
-    ArticleAdapter articleAdapter;
-
-    /** View Variables */
-    Button articlesRefresh;
-    LoadingButton articlesLoading;
-
     /** Active User Variable */
     public static com.example.curious.Models.User activeUser;
-
-    /** Others */
-    private boolean doubleBackToExitPressedOnce = false;
-    private Integer scrollViewPos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_moderate_articles_view);
+        setContentView(R.layout.activity_moderate_article_view);
 
         if(!isConnectedToInternet()) {
             showToast("No Internet Connection");
+            onBackPressed();
         }
-
-        articles = new ArrayList<>();
-        getActiveUser();
-        setUI();
+        else {
+            getActiveUser();
+            setUI();
+        }
     }
 
-    public void getActiveUser() {
+    public void getActiveUser(){
         SQLiteHelper sqLiteDatabaseHelper = new SQLiteHelper(this);
         SQLiteDatabase sqLiteDatabase = sqLiteDatabaseHelper.getReadableDatabase();
         activeUser = sqLiteDatabaseHelper.getUser();
@@ -136,63 +143,70 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
         findXmlElements();
         setToolbar();
         setListeners();
+        initializeArticle();
         initializeUI();
     }
 
-    public void findXmlElements(){
+    public void findXmlElements() {
         // Parent Layout
-        drawerLayout = (DrawerLayout) findViewById(R.id.moderate_articles_drawer_layout);
+        drawerLayout = (DrawerLayout) findViewById(R.id.moderate_article_drawer_layout);
 
         // Toolbar
-        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.moderate_articles_toolbar);
+        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.moderate_article_toolbar);
         userDrawerBtn = (Button) findViewById(R.id.user_drawer_btn);
-        newArticleBtn = (Button) findViewById(R.id.new_article_btn);
         activityTitle = (TextView) findViewById(R.id.activity_title);
+        newArticleBtn = (Button) findViewById(R.id.new_article_btn);
 
         // Navigation Drawer
         userNavigationView = (NavigationView) findViewById(R.id.user_navigation_view);
         profilePictureImageView = (ImageView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_picture);
         profileEmailTextView = (TextView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_email);
 
-        // Recycler View
-        articlesRecyclerView = (RecyclerView) findViewById(R.id.moderate_articles_recycler_view);
+        // View Variables
+        articleCover = findViewById(R.id.moderate_article_cover);
+        articleDate = findViewById(R.id.moderate_article_date);
+        articleTitle = findViewById(R.id.moderate_article_title);
+        articleAuthor = findViewById(R.id.moderate_article_author);
+        articleBody = findViewById(R.id.moderate_article_body);
 
-        // View
-        articlesRefresh = findViewById(R.id.moderate_articles_refresh);
-        articlesLoading = findViewById(R.id.moderate_articles_loading);
+        articleVerifyClickable = findViewById(R.id.moderate_article_verify_clickable);
+        articleVerifyImage = findViewById(R.id.moderate_article_verify_image);
+        articleVerifyText = findViewById(R.id.moderate_article_verify_text);
+
+        articleDiscardClickable = findViewById(R.id.moderate_article_discard_clickable);
+        articleDiscardImage = findViewById(R.id.moderate_article_discard_image);
+        articleDiscardText = findViewById(R.id.moderate_article_discard_text);
+
+        articleLoading = findViewById(R.id.moderate_article_loading);
     }
 
-    @SuppressLint("RestrictedApi")
     public void setToolbar(){
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         newArticleBtn.setVisibility(View.INVISIBLE);
-        activityTitle.setText(R.string.txt_moderate_articles);
+        activityTitle.setText(R.string.txt_moderate);
     }
 
     public void setListeners(){
         drawerLayout.setDrawerListener(drawerToggle);
         userDrawerBtn.setOnClickListener(this);
         userNavigationView.setNavigationItemSelectedListener(this);
-        newArticleBtn.setOnClickListener(this);
-        articlesRefresh.setOnClickListener(this);
-        articlesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        articlesRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if(newState == RecyclerView.SCROLL_INDICATOR_BOTTOM) {
-                    articlesRefresh.setVisibility(View.VISIBLE);
-                }
-            }
 
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (dy < 0) {
-                    articlesRefresh.setVisibility(View.GONE);
-                }
-            }
-        });
+        articleVerifyClickable.setOnClickListener(this);
+        articleDiscardClickable.setOnClickListener(this);
+    }
+
+    private void initializeArticle() {
+        Intent intent = getIntent();
+        check = intent.getStringExtra("status");
+        if(check.equals("moderate_article")) {
+            aid = intent.getStringExtra("moderate_article_aid");
+            loadArticle(aid);
+        }
+        else {
+            showToast("[ERROR] Couldn't Find Selected Article");
+        }
     }
 
     public void initializeUI(){
@@ -202,110 +216,109 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
 
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
         profileEmailTextView.setText(activeUser.getEmail());
-        userNavigationView.getMenu().findItem(R.id.user_moderate_option).setVisible(isModerator);
-
-        // Recycle View
-        articlesRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        articleAdapter = new ArticleAdapter(this, articles, this);
-        articlesRecyclerView.setAdapter(articleAdapter);
-        articleAdapter.notifyDataSetChanged();
     }
 
-    /** Load Articles */
+    /** Set Article View */
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        loadArticles();
+    public void setArticleView(Article article) {
+        Picasso.get().load(article.getCoverUrl()).into(articleCover);
+        articleDate.setText(article.getDate());
+        articleTitle.setText(article.getTitle());
+        articleAuthor.setText(article.getUid());
+        articleBody.setText(article.getBody());
     }
 
-    public void loadArticles() {
-        newArticles = new ArrayList<>();
+    public void resetButtons() {
+        verifyClicked = false;
+        discardClicked = false;
+        articleVerifyImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_verify));
+        articleDiscardImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_discard));
+        articleLoading.setVisibility(View.GONE);
+        articleVerifyClickable.setVisibility(View.VISIBLE);
+        articleDiscardClickable.setVisibility(View.VISIBLE);
+    }
 
+    /** Load Article */
+
+    public void loadArticle(String aid) {
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         CollectionReference articlesRef = database.collection("pendingArticles");
-        query = articlesRef.orderBy("timestamp", Query.Direction.ASCENDING).limit(numberOfDocumentsPerQuery);
+        Query query = articlesRef.whereEqualTo("aid", aid);
 
         query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(QuerySnapshot documentSnapshots) {
-                for(QueryDocumentSnapshot documentSnapshot : documentSnapshots){
-                    Article article = documentSnapshot.toObject(Article.class);
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for(QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    article = documentSnapshot.toObject(Article.class);
                     Date date = documentSnapshot.getDate("timestamp");
-                    article.setDate(DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date));
-                    newArticles.add(article);
+                    article.setDate(DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date).toString());
+                    setArticleView(article);
                 }
-
-                articles = newArticles;
-                updateView();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 showToast("[ERROR - Firestore] " + e.getMessage());
+                resetButtons();
             }
         });
     }
 
-    public void updateView() {
-        articlesLoading.setVisibility(View.GONE);
-        articleAdapter.updateArticlesAdapter(articles);
-        if(articles.size()==0) {
-            showToast("No Pending Articles Found");
-            articlesRefresh.setVisibility(View.VISIBLE);
-        }
-        else if(articles.size()<numberOfDocumentsPerQuery) {
-            articlesRefresh.setVisibility(View.VISIBLE);
-        }
-    }
+    /** Verify */
 
-    /** View Article */
+    public void verifyArticle(){
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        DocumentReference articleRef = database.collection("articles").document(aid);
 
-    public void moderateArticle(int position){
-        Article article = articles.get(position);
-        Intent intent = new Intent(ModerateArticlesView.this, ModerateArticleView.class);
-        intent.putExtra("status", "moderate_article");
-        sendAidToActivity(article.getAid(), intent);
-        startActivity(intent);
-    }
-
-    public void sendAidToActivity(String aid, Intent intent){
-        intent.putExtra("moderate_article_aid", aid);
-    }
-
-    /** Others */
-
-    @Override
-    public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            super.finish();
-            moveTaskToBack(true);
-            return;
-        }
-        this.doubleBackToExitPressedOnce = true;
-        showToast("Press Once Again to EXIT");
-        new Handler().postDelayed(new Runnable() {
+        articleRef.set(article).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
-            public void run() {
-                doubleBackToExitPressedOnce=false;
+            public void onSuccess(Void unused) {
+                discardArticle("verify");
             }
-        }, 2000);
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showToast("[ERROR - FIRESTORE] " + e.toString());
+                resetButtons();
+            }
+        });
     }
 
-    @Override
-    public void finish() {
-        super.finish();
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-    }
+    /** Discard */
 
-    public void showToast(String message){
-        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        toast.show();
+    public void discardArticle(String mode){
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        Query query = database.collection("pendingArticles").whereEqualTo("aid", aid);
+
+        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    documentSnapshot.getReference().delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            if(mode.isEmpty()) {
+                                showToast("Discarded");
+                            }
+                            else {
+                                showToast("Verified");
+                            }
+                            onBackPressed();
+                        }
+                    });
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                resetButtons();
+            }
+        });
     }
 
     /** Listeners */
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onClick(View view) {
         if(view == userDrawerBtn) {
@@ -333,13 +346,27 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
                 }
             }.start();
         }
-        else if(view == articlesRefresh) {
-            articlesRefresh.setVisibility(View.GONE);
-            articlesLoading.setVisibility(View.VISIBLE);
-            loadArticles();
+        else if(view == articleVerifyClickable) {
+            if(!verifyClicked) {
+                verifyClicked = true;
+                articleVerifyImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_verify_active));
+                articleVerifyClickable.setVisibility(View.GONE);
+                articleLoading.setVisibility(View.VISIBLE);
+                verifyArticle();
+            }
+        }
+        else if(view == articleDiscardClickable) {
+            if(!discardClicked) {
+                discardClicked = true;
+                articleDiscardImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_discard_active));
+                articleDiscardClickable.setVisibility(View.GONE);
+                articleLoading.setVisibility(View.VISIBLE);
+                discardArticle("");
+            }
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -350,12 +377,11 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
             // startActivity(intent);
         }
         else if(id == R.id.user_moderate_option) {
-            startActivity(getIntent());
+            onBackPressed();
         }
         else if (id == R.id.user_articles_option) {
-            Intent intent = new Intent(getApplicationContext(), ArticlesView.class);
+            Intent intent = new Intent(ModerateArticleView.this, ArticlesView.class);
             startActivity(intent);
-            finish();
         }
         else if (id == R.id.user_saved_option) {
             Snackbar.make(drawerLayout, "Saved Articles View", Snackbar.LENGTH_SHORT).show();
@@ -384,29 +410,8 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
         return true;
     }
 
-    @Override
-    public void onArticleClick(View view, int position) {
-        new CountDownTimer(100, 20) {
-            int i;
-            @Override
-            public void onTick(long l) {
-                if (i % 2 == 0) {
-                    view.setVisibility(View.INVISIBLE);
-                } else {
-                    view.setVisibility(View.VISIBLE);
-                }
-                i++;
-            }
-
-            @Override
-            public void onFinish() {
-                view.setVisibility(View.VISIBLE);
-                moderateArticle(position);
-            }
-        }.start();
-    }
-
     /** Authentication & Sign Out */
+
     public void signOut() {
         initializeGoogleVariable();
         mAuth.signOut();
@@ -439,7 +444,32 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
         mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
     }
 
+    /** Others */
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            intent = new Intent(ModerateArticleView.this, ModerateArticlesView.class);
+        }
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
+
+    public void showToast(String message){
+        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
+    }
+
     /** For Checking Network Connection */
+
     public void broadcastIntent() {
         registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
