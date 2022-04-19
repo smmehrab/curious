@@ -82,6 +82,7 @@
         <entry key="app/src/main/res/layout/feedback_bar.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/layout/item_article.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/item_comment.xml" value="0.35625" />
+        <entry key="app/src/main/res/layout/item_posted_article.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/menu/drawer_menu_home.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/menu/drawer_menu_user.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.19" />

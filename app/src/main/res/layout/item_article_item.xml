@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:longClickable="true"
+    android:elevation="4dp"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/article_item_item_fg"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:background="@drawable/shape_article_item"
+        android:clickable="false"
+        android:elevation="4dp"
+        android:weightSum="8"
+        android:focusable="false"
+        android:longClickable="false"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <ImageView
+            android:id="@+id/article_item_item_cover"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:src="@drawable/google_icon"
+            android:padding="10dp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="5"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/article_item_item_date"
+                    android:textSize="12sp"
+                    android:textColor="@color/secondary_text"
+                    android:text="8:00 PM | 24 April, 2022"
+                    android:gravity="center_vertical"
+                    android:layout_gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:layout_marginVertical="5dp"/>
+
+                <TextView
+                    android:id="@+id/article_item_item_title"
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary"
+                    android:text="Title of the Article"
+                    android:gravity="center_vertical"
+                    android:layout_gravity="left"
+                    android:layout_width="match_parent"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="5dp"/>
+
+                <TextView
+                    android:id="@+id/article_item_item_author"
+                    android:textSize="12sp"
+                    android:textColor="@color/colorPrimary"
+                    android:text="Asif Ahsan"
+                    android:gravity="center_vertical"
+                    android:layout_gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:layout_marginVertical="5dp"/>
+
+                <TextView
+                    android:id="@+id/article_item_item_status"
+                    android:textSize="12sp"
+                    android:textColor="@color/secondary_text"
+                    android:text="Pending"
+                    android:gravity="center_vertical"
+                    android:layout_gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:layout_marginVertical="5dp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
