@@ -338,37 +338,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         intent.putExtra("view_article_aid", aid);
     }
 
-    /** Others */
-
-    @Override
-    public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            super.finish();
-            moveTaskToBack(true);
-            return;
-        }
-        this.doubleBackToExitPressedOnce = true;
-        showToast("Press Once Again to EXIT");
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce=false;
-            }
-        }, 2000);
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-    }
-
-    public void showToast(String message){
-        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 150);
-        toast.show();
-    }
-
     /** Listeners */
 
     @Override
@@ -438,9 +407,8 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         int id = item.getItemId();
 
         if (id == R.id.user_profile_option) {
-            Snackbar.make(drawerLayout, "Profile View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), ProfileView.class);
-            // startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(), ProfileView.class);
+            startActivity(intent);
         }
         else if(id == R.id.user_moderate_option) {
             Intent intent = new Intent(getApplicationContext(), ModerateArticlesView.class);
@@ -534,6 +502,38 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
+    }
+
+
+    /** Others */
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.finish();
+            moveTaskToBack(true);
+            return;
+        }
+        this.doubleBackToExitPressedOnce = true;
+        showToast("Press Once Again to EXIT");
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
+
+    public void showToast(String message){
+        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 150);
+        toast.show();
     }
 
     /** For Checking Network Connection */

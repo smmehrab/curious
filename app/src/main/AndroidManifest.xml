@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Curious">
         <activity
+            android:name=".Views.ProfileView"
+            android:exported="false" />
+        <activity
             android:name=".Views.SavedArticlesView"
             android:exported="false" />
         <activity

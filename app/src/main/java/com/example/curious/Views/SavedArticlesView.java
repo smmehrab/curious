@@ -392,9 +392,8 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
         int id = item.getItemId();
 
         if (id == R.id.user_profile_option) {
-            Snackbar.make(drawerLayout, "Profile View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), ProfileView.class);
-            // startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(), ProfileView.class);
+            startActivity(intent);
         }
         else if(id == R.id.user_moderate_option) {
             Intent intent = new Intent(getApplicationContext(), ModerateArticlesView.class);
