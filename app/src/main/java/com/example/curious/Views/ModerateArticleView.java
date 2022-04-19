@@ -275,8 +275,6 @@ public class ModerateArticleView extends AppCompatActivity implements View.OnCli
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-
-
                     documentSnapshot.getReference().delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
