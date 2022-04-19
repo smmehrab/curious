@@ -41,7 +41,8 @@
             android:exported="false" />
         <activity
             android:name=".Views.ArticlesView"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode = "singleTop"/>
         <activity
             android:name=".Views.AuthView"
             android:exported="true">
