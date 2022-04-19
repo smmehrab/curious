@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.curious.Models.Article;
+import com.example.curious.Models.ArticleItem;
 import com.example.curious.Models.Comment;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
@@ -53,9 +54,8 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
 
     /** Article */
     Article article;
-    String aid, uid, title, body, coverUrl, uname, date;
-    Integer likeCount, viewCount;
-    List<Comment> comments;
+    ArticleItem articleItem;
+    String aid, uid, title, body, coverUrl, uname;
     Uri coverUri;
 
     /** Network Variables */
@@ -248,10 +248,12 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     public void postArticleToFirestore() {
         // Initialize new article document on database
         FirebaseFirestore database = FirebaseFirestore.getInstance();
-        DocumentReference newArticleRef = database.collection("pendingArticles").document();
+        DocumentReference pendingArticleRef = database.collection("pendingArticles").document();
 
         // Get & Set aid
-        aid = newArticleRef.getId();
+        aid = pendingArticleRef.getId();
+
+        DocumentReference userPostedArticleItemRef = database.collection("users").document(activeUser.getUid()).collection("posted").document(aid);
 
         // Upload Cover to Storage
         String coverDownloadLink = "";
@@ -270,17 +272,23 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                         uid = activeUser.getUid().toString();
                         uname = activeUser.getName();
                         article = new Article(aid, uid, title, coverUrl, body, uname);
+                        articleItem = new ArticleItem(aid, uid, title, coverUrl, uname, "Pending");
 
                         // Set Article to Database
-                        newArticleRef.set(article).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        pendingArticleRef.set(article).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                showToast("[POSTED] Pending for Verification");
-                                Intent intent = null;
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                                    intent = new Intent(NewArticleView.this, ArticlesView.class);
-                                }
-                                startActivity(intent);
+                                userPostedArticleItemRef.set(articleItem).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        showToast("[POSTED] Pending for Verification");
+                                        Intent intent = null;
+                                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                                            intent = new Intent(NewArticleView.this, ArticlesView.class);
+                                        }
+                                        startActivity(intent);
+                                    }
+                                });
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override

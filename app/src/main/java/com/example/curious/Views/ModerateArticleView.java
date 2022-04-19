@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.curious.Models.Article;
+import com.example.curious.Models.ArticleItem;
 import com.example.curious.Models.Comment;
 import com.example.curious.Models.Like;
 import com.example.curious.R;
@@ -70,6 +71,7 @@ public class ModerateArticleView extends AppCompatActivity implements View.OnCli
 
     /** Article */
     private Article article;
+    private ArticleItem articleItem;
     private String check, aid;
     private boolean verifyClicked = false;
     private boolean discardClicked = false;
@@ -273,16 +275,12 @@ public class ModerateArticleView extends AppCompatActivity implements View.OnCli
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+
+
                     documentSnapshot.getReference().delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
-                            if(mode.isEmpty()) {
-                                showToast("Discarded");
-                            }
-                            else {
-                                showToast("Verified");
-                            }
-                            onBackPressed();
+                            updateArticleItems(mode);
                         }
                     });
                 }
@@ -291,6 +289,36 @@ public class ModerateArticleView extends AppCompatActivity implements View.OnCli
             @Override
             public void onFailure(@NonNull Exception e) {
                 resetButtons();
+            }
+        });
+    }
+
+    /** Update Article Items */
+
+    public void updateArticleItems(String mode) {
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        DocumentReference userPostedArticleItemRef = database.collection("users").document(article.getUid()).collection("posted").document(aid);
+        DocumentReference userPublishedArticleItemRef = database.collection("users").document(article.getUid()).collection("published").document(aid);
+
+        String status = (mode.isEmpty()) ?  "Discarded" : "Published";
+        articleItem = new ArticleItem(article.getAid(), article.getUid(), article.getTitle(), article.getCoverUrl(), article.getUname(), status);
+
+        userPostedArticleItemRef.set(articleItem).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                if(mode.isEmpty()) {
+                    showToast("Discarded");
+                    onBackPressed();
+                }
+                else {
+                    userPublishedArticleItemRef.set(articleItem).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            showToast("Verified & Published");
+                            onBackPressed();
+                        }
+                    });
+                }
             }
         });
     }

@@ -192,7 +192,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         articlesLoading = findViewById(R.id.articles_loading);
     }
 
-    @SuppressLint("RestrictedApi")
     public void setToolbar(){
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
