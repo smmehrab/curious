@@ -266,6 +266,11 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             aid = intent.getStringExtra("view_saved_article_aid");
             loadArticle(aid);
         }
+        else if(check.equals("view_published_article")) {
+            previousView = "PublishedArticles";
+            aid = intent.getStringExtra("view_published_article_aid");
+            loadArticle(aid);
+        }
         else {
             showToast("[ERROR] Couldn't Find Selected Article");
         }
@@ -648,6 +653,9 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             }
             else if(previousView.equals("SavedArticles")) {
                 intent = new Intent(ArticleView.this, SavedArticlesView.class);
+            }
+            else if(previousView.equals("PublishedArticles")) {
+                intent = new Intent(ArticleView.this, PublishedArticlesView.class);
             }
         }
         startActivity(intent);

@@ -309,13 +309,13 @@ public class PublishedArticlesView extends AppCompatActivity implements View.OnC
     public void viewArticle(int position){
         Article article = articles.get(position);
         Intent intent = new Intent(getApplicationContext(), ArticleView.class);
-        intent.putExtra("status", "view_article");
+        intent.putExtra("status", "view_published_article");
         sendAidToActivity(article.getAid(), intent);
         startActivity(intent);
     }
 
     public void sendAidToActivity(String aid, Intent intent){
-        intent.putExtra("view_article_aid", aid);
+        intent.putExtra("view_published_article_aid", aid);
     }
 
     /** Listeners */
