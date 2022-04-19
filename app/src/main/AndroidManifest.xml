@@ -16,6 +16,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Curious">
         <activity
+            android:name=".Views.PostedArticlesView"
+            android:exported="false" />
+        <activity
+            android:name=".Views.PublishedArticlesView"
+            android:exported="false" />
+        <activity
+            android:name=".Views.ProfileView"
+            android:exported="false" />
+        <activity
+            android:name=".Views.SavedArticlesView"
+            android:exported="false" />
+        <activity
+            android:name=".Views.ModerateArticleView"
+            android:exported="false" />
+        <activity
+            android:name=".Views.ModerateArticlesView"
+            android:exported="false" />
+        <activity
             android:name=".Views.NewArticleView"
             android:exported="false" />
         <activity

@@ -66,10 +66,10 @@ import java.util.Date;
 import java.util.Objects;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
-public class ArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
+public class SavedArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
 
-    private ArrayList<Article> articles;
-    private ArrayList<Article> newArticles;
+    ArrayList<Article> articles;
+    ArrayList<Article> newArticles;
 
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
@@ -120,11 +120,12 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_articles_view);
+        setContentView(R.layout.activity_saved_articles_view);
 
         if(!isConnectedToInternet()) {
             showToast("No Internet Connection");
         }
+
         articles = new ArrayList<>();
         getActiveUser();
         setUI();
@@ -169,10 +170,10 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
     public void findXmlElements(){
         // Parent Layout
-        drawerLayout = (DrawerLayout) findViewById(R.id.articles_drawer_layout);
+        drawerLayout = (DrawerLayout) findViewById(R.id.saved_articles_drawer_layout);
 
         // Toolbar
-        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.articles_toolbar);
+        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.saved_articles_toolbar);
         userDrawerBtn = (Button) findViewById(R.id.user_drawer_btn);
         newArticleBtn = (Button) findViewById(R.id.new_article_btn);
         activityTitle = (TextView) findViewById(R.id.activity_title);
@@ -183,20 +184,21 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         profileEmailTextView = (TextView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_email);
 
         // Recycler View
-        articlesRecyclerView = (RecyclerView) findViewById(R.id.articles_recycler_view);
+        articlesRecyclerView = (RecyclerView) findViewById(R.id.saved_articles_recycler_view);
 
         // View
-        articlesButtons = findViewById(R.id.articles_buttons_ll);
-        articlesOlder = findViewById(R.id.articles_older);
-        articlesLatest = findViewById(R.id.articles_latest);
-        articlesLoading = findViewById(R.id.articles_loading);
+        articlesButtons = findViewById(R.id.saved_articles_buttons_ll);
+        articlesOlder = findViewById(R.id.saved_articles_older);
+        articlesLatest = findViewById(R.id.saved_articles_latest);
+        articlesLoading = findViewById(R.id.saved_articles_loading);
     }
 
+    @SuppressLint("RestrictedApi")
     public void setToolbar(){
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        activityTitle.setText(R.string.txt_articles);
+        activityTitle.setText(R.string.txt_saved_articles);
     }
 
     public void setListeners(){
@@ -217,24 +219,8 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             }
 
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (dx > 0) {
-                    System.out.println("Scrolled Right");
-                }
-                else if (dx < 0) {
-                    System.out.println("Scrolled Left");
-                }
-                else {
-                    System.out.println("No Horizontal Scrolled");
-                }
-
-                if (dy > 0) {
-                    System.out.println("Scrolled Downwards");
-                }
-                else if (dy < 0) {
+                if (dy < 0) {
                     articlesButtons.setVisibility(View.GONE);
-                }
-                else {
-                    System.out.println("No Vertical Scrolled");
                 }
             }
         });
@@ -267,7 +253,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         newArticles = new ArrayList<>();
 
         FirebaseFirestore database = FirebaseFirestore.getInstance();
-        CollectionReference articlesRef = database.collection("articles");
+        CollectionReference articlesRef = database.collection("users").document(activeUser.getUid()).collection("savedArticles");
 
         if(mode.isEmpty() || mode.equals("latest")) {
             query = articlesRef.orderBy("timestamp", Query.Direction.DESCENDING).limit(numberOfDocumentsPerQuery);
@@ -327,14 +313,35 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
     public void viewArticle(int position){
         Article article = articles.get(position);
-        Intent intent = new Intent(ArticlesView.this, ArticleView.class);
-        intent.putExtra("status", "view_article");
+        Intent intent = new Intent(SavedArticlesView.this, ArticleView.class);
+        intent.putExtra("status", "view_saved_article");
         sendAidToActivity(article.getAid(), intent);
         startActivity(intent);
     }
 
     public void sendAidToActivity(String aid, Intent intent){
-        intent.putExtra("view_article_aid", aid);
+        intent.putExtra("view_saved_article_aid", aid);
+    }
+
+    /** Others */
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(getApplicationContext(), ArticlesView.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
+
+    public void showToast(String message){
+        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 150);
+        toast.show();
     }
 
     /** Listeners */
@@ -366,27 +373,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                 }
             }.start();
         }
-        else if(view == newArticleBtn) {
-            new CountDownTimer(100, 20) {
-                int i;
-                @Override
-                public void onTick(long l) {
-                    if (i % 2 == 0) {
-                        newArticleBtn.setVisibility(View.INVISIBLE);
-                    } else {
-                        newArticleBtn.setVisibility(View.VISIBLE);
-                    }
-                    i++;
-                }
-
-                @Override
-                public void onFinish() {
-                    newArticleBtn.setVisibility(View.VISIBLE);
-                    Intent intent = new Intent(ArticlesView.this, NewArticleView.class);
-                    startActivity(intent);
-                }
-            }.start();
-        }
         else if(view == articlesOlder) {
             articlesButtons.setVisibility(View.GONE);
             articlesLoading.setVisibility(View.VISIBLE);
@@ -414,11 +400,12 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }
         else if (id == R.id.user_articles_option) {
-            startActivity(getIntent());
+            Intent intent = new Intent(getApplicationContext(), ArticlesView.class);
+            startActivity(intent);
+            finish();
         }
         else if (id == R.id.user_saved_option) {
-            Intent intent = new Intent(getApplicationContext(), SavedArticlesView.class);
-            startActivity(intent);
+            startActivity(getIntent());
         }
 
         else if (id == R.id.user_settings_option) {
@@ -459,7 +446,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onFinish() {
                 view.setVisibility(View.VISIBLE);
-
                 if(!isConnectedToInternet()) {
                     showToast("No Internet Connection");
                 }
@@ -501,38 +487,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
-    }
-
-
-    /** Others */
-
-    @Override
-    public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            super.finish();
-            moveTaskToBack(true);
-            return;
-        }
-        this.doubleBackToExitPressedOnce = true;
-        showToast("Press Once Again to EXIT");
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce=false;
-            }
-        }, 2000);
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-    }
-
-    public void showToast(String message){
-        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 150);
-        toast.show();
     }
 
     /** For Checking Network Connection */

@@ -13,27 +13,33 @@
     <group android:id="@+id/user_menu_middle">
 
         <item
+            android:id="@+id/user_moderate_option"
+            android:icon="@drawable/ic_moderate"
+            android:title="@string/txt_moderate"
+            android:visible="false"/>
+
+        <item
             android:id="@+id/user_articles_option"
             android:icon="@drawable/ic_articles"
             android:title="@string/txt_articles"/>
 
         <item
             android:id="@+id/user_saved_option"
-            android:icon="@drawable/ic_saved"
+            android:icon="@drawable/ic_save"
             android:title="@string/txt_saved"/>
 
     </group>
 
     <group android:id="@+id/user_menu_botttom">
         <item
-            android:id="@+id/user_settings_option"
-            android:icon="@drawable/ic_settings"
-            android:title="@string/settings_txt"/>
-
-        <item
             android:id="@+id/user_about_option"
             android:icon="@drawable/ic_about"
             android:title="@string/about_txt"/>
+
+        <item
+            android:id="@+id/user_settings_option"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/settings_txt"/>
 
         <item
             android:id="@+id/user_sign_out_option"

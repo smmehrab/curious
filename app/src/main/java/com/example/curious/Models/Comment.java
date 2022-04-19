@@ -1,42 +1,51 @@
 package com.example.curious.Models;
 
+import com.google.firebase.firestore.FieldValue;
+
 public class Comment {
-    private String commentID;
-    private String articleID;
-    private String userID;
+    private String cid;
+    private String aid;
+    private String uid;
+    private String uname;
     private String text;
-    private String timestamp;
+    private Object timestamp;
+    private String date;
 
-    public Comment(String commentID, String articleID, String userID, String text, String timestamp) {
-        this.commentID = commentID;
-        this.articleID = articleID;
-        this.userID = userID;
+    public Comment(String cid, String aid, String uid, String uname, String text) {
+        this.cid = cid;
+        this.aid = aid;
+        this.uid = uid;
+        this.uname = uname;
         this.text = text;
-        this.timestamp = timestamp;
+        this.timestamp = FieldValue.serverTimestamp();
     }
 
-    public String getCommentID() {
-        return commentID;
+    public Comment() {
+
     }
 
-    public void setCommentID(String commentID) {
-        this.commentID = commentID;
+    public String getCid() {
+        return cid;
     }
 
-    public String getArticleID() {
-        return articleID;
+    public void setCid(String cid) {
+        this.cid = cid;
     }
 
-    public void setArticleID(String articleID) {
-        this.articleID = articleID;
+    public String getAid() {
+        return aid;
     }
 
-    public String getUserID() {
-        return userID;
+    public void setAid(String aid) {
+        this.aid = aid;
     }
 
-    public void setUserID(String userID) {
-        this.userID = userID;
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getText() {
@@ -47,11 +56,27 @@ public class Comment {
         this.text = text;
     }
 
-    public String getTimestamp() {
+    public Object getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Object timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getUname() {
+        return uname;
+    }
+
+    public void setUname(String uname) {
+        this.uname = uname;
     }
 }

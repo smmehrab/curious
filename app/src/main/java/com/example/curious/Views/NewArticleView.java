@@ -2,6 +2,7 @@ package com.example.curious.Views;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -30,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.curious.Models.Article;
+import com.example.curious.Models.ArticleItem;
 import com.example.curious.Models.Comment;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
@@ -52,9 +54,8 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
 
     /** Article */
     Article article;
-    String aid, uid, title, body, coverUrl, date;
-    Integer likeCount, viewCount;
-    List<Comment> comments;
+    ArticleItem articleItem;
+    String aid, uid, title, body, coverUrl, uname;
     Uri coverUri;
 
     /** Network Variables */
@@ -75,7 +76,9 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     EditText newArticleTitle;
     EditText newArticleBody;
     Button newArticleCancel;
-    LoadingButton newArticlePost;
+    Button newArticlePost;
+    LoadingButton newArticleCancelLoading;
+    LoadingButton newArticlePostLoading;
 
     /** Toolbar Variables */
     private androidx.appcompat.widget.Toolbar toolbar;
@@ -90,6 +93,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     static int PReqCode = 1;
     static int ReqCode = 1;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,8 +136,10 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
         newArticleCover = findViewById(R.id.new_article_cover);
         newArticleTitle = findViewById(R.id.new_article_title);
         newArticleBody = findViewById(R.id.new_article_body);
-        newArticleCancel = findViewById(R.id.new_article_cancel_btn);
-        newArticlePost = findViewById(R.id.new_article_post_btn_loading);
+        newArticleCancel = findViewById(R.id.new_article_cancel);
+        newArticlePost = findViewById(R.id.new_article_post);
+        newArticleCancelLoading = findViewById(R.id.new_article_cancel_loading);
+        newArticlePostLoading = findViewById(R.id.new_article_post_loading);
     }
 
     public void setToolbar(){
@@ -242,10 +248,12 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     public void postArticleToFirestore() {
         // Initialize new article document on database
         FirebaseFirestore database = FirebaseFirestore.getInstance();
-        DocumentReference newArticleRef = database.collection("articles").document();
+        DocumentReference pendingArticleRef = database.collection("pendingArticles").document();
 
         // Get & Set aid
-        aid = newArticleRef.getId();
+        aid = pendingArticleRef.getId();
+
+        DocumentReference userPostedArticleItemRef = database.collection("users").document(activeUser.getUid()).collection("posted").document(aid);
 
         // Upload Cover to Storage
         String coverDownloadLink = "";
@@ -262,21 +270,32 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                         title = newArticleTitle.getText().toString();
                         body = newArticleBody.getText().toString();
                         uid = activeUser.getUid().toString();
-                        article = new Article(aid, uid, title, coverUrl, body);
+                        uname = activeUser.getName();
+                        article = new Article(aid, uid, title, coverUrl, body, uname);
+                        articleItem = new ArticleItem(aid, uid, title, coverUrl, uname, "Pending");
 
                         // Set Article to Database
-                        newArticleRef.set(article).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        pendingArticleRef.set(article).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                showToast("Article Added Successfully");
-                                Intent intent = new Intent(NewArticleView.this, ArticlesView.class);
-                                startActivity(intent);
+                                userPostedArticleItemRef.set(articleItem).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        showToast("[POSTED] Pending for Verification");
+                                        Intent intent = null;
+                                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                                            intent = new Intent(NewArticleView.this, ArticlesView.class);
+                                        }
+                                        startActivity(intent);
+                                    }
+                                });
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 showToast("[ERROR - FIREBASE] " + e.toString());
-                                newArticlePost.hideLoading();
+                                newArticlePostLoading.setVisibility(View.GONE);
+                                newArticlePost.setVisibility(View.VISIBLE);
                             }
                         });
                     }
@@ -284,7 +303,8 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         showToast("[ERROR - Storage] " + e.getMessage());
-                        newArticlePost.hideLoading();
+                        newArticlePostLoading.setVisibility(View.GONE);
+                        newArticlePost.setVisibility(View.VISIBLE);
                     }
                 });
             }
@@ -315,7 +335,12 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
             }.start();
         }
         else if(view == newArticleCancel) {
-            Intent intent = new Intent(NewArticleView.this, ArticlesView.class);
+            newArticleCancel.setVisibility(View.GONE);
+            newArticleCancelLoading.setVisibility(View.VISIBLE);
+            Intent intent = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                intent = new Intent(NewArticleView.this, ArticlesView.class);
+            }
             startActivity(intent);
             finish();
         }
@@ -325,7 +350,8 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                     && !newArticleBody.getText().toString().isEmpty()
                     && !newArticleBody.getText().toString().equals(getResources().getString(R.string.txt_write_your_article))
                     && coverUri!=null) {
-                newArticlePost.showLoading();
+                newArticlePost.setVisibility(View.GONE);
+                newArticlePostLoading.setVisibility(View.VISIBLE);
                 postArticleToFirestore();
             }
             else {
@@ -345,6 +371,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     }
 
     /** Others */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(NewArticleView.this, ArticlesView.class);
@@ -360,7 +387,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
 
     public void showToast(String message){
         Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 150);
         toast.show();
     }
 

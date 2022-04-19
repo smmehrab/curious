@@ -1,40 +1,31 @@
 package com.example.curious.Models;
 
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.firestore.FieldValue;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.List;
-
-public class Article {
+public class ArticleItem {
     private String aid;
     private String uid;
     private String title;
     private String coverUrl;
-    private String body;
     private String uname;
     private String date;
     private Object timestamp;
     private Integer likeCount;
-    private Integer viewCount;
-    private Integer commentCount;
+    private String status;
 
-    public Article(String aid, String uid, String title, String coverUrl, String body, String uname) {
+    public ArticleItem(String aid, String uid, String title, String coverUrl, String uname, String status) {
         this.aid = aid;
         this.uid = uid;
         this.title = title;
         this.coverUrl = coverUrl;
-        this.body = body;
         this.uname = uname;
         this.date = "";
         this.timestamp = FieldValue.serverTimestamp();
         this.likeCount = 0;
-        this.viewCount = 0;
-        this.commentCount = 0;
+        this.status = status;
     }
 
-    public Article() {
+    public ArticleItem() {
 
     }
 
@@ -70,14 +61,6 @@ public class Article {
         this.coverUrl = coverUrl;
     }
 
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
     public Object getTimestamp() {
         return timestamp;
     }
@@ -94,14 +77,6 @@ public class Article {
         this.likeCount = likeCount;
     }
 
-    public Integer getViewCount() {
-        return viewCount;
-    }
-
-    public void setViewCount(Integer viewCount) {
-        this.viewCount = viewCount;
-    }
-
     public String getDate() {
         return date;
     }
@@ -110,19 +85,19 @@ public class Article {
         this.date = date;
     }
 
-    public Integer getCommentCount() {
-        return commentCount;
-    }
-
-    public void setCommentCount(Integer commentCount) {
-        this.commentCount = commentCount;
-    }
-
     public String getUname() {
         return uname;
     }
 
     public void setUname(String uname) {
         this.uname = uname;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

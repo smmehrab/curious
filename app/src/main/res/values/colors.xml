@@ -31,4 +31,8 @@
     <color name="primary_ligher">#E1E4F4</color>
     <color name="primary_lightest">#F0F1F9</color>
 
+    <color name="secondary_button">#5A5A5A</color>
+    <color name="secondary_text_dark">#5A5A5A</color>
+    <color name="cursor_color">#5A5A5A</color>
+
 </resources>
