@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Curious">
         <activity
+            android:name=".Views.PostedArticlesView"
+            android:exported="false" />
+        <activity
             android:name=".Views.PublishedArticlesView"
             android:exported="false" />
         <activity

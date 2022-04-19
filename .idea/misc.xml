@@ -73,6 +73,7 @@
         <entry key="app/src/main/res/layout/activity_moderate_article_view.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_moderate_articles_view.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_new_article_view.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/layout/activity_posted_articles_view.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/layout/activity_profile_view.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_published_articles_view.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_saved_articles_view.xml" value="0.18177083333333333" />
