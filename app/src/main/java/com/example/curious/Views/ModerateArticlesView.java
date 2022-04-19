@@ -201,7 +201,7 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
         broadcastIntent();
 
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
-        profileEmailTextView.setText(activeUser.getEmail());
+        profileEmailTextView.setText(activeUser.getName());
         userNavigationView.getMenu().findItem(R.id.user_moderate_option).setVisible(isModerator);
 
         // Recycle View

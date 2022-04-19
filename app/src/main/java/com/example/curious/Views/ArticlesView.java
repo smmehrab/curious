@@ -248,7 +248,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         broadcastIntent();
 
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
-        profileEmailTextView.setText(activeUser.getEmail());
+        profileEmailTextView.setText(activeUser.getName());
 
         // Recycle View
         articlesRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
