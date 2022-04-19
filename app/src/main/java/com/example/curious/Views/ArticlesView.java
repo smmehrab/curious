@@ -321,6 +321,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
         if(articles.size()<numberOfDocumentsPerQuery) {
             articlesButtons.setVisibility(View.VISIBLE);
+            articlesOlder.setVisibility(View.GONE);
         }
     }
 
@@ -365,7 +366,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
     public void showToast(String message){
         Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 30);
+        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 150);
         toast.show();
     }
 

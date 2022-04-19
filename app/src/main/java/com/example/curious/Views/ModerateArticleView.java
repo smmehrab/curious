@@ -464,7 +464,7 @@ public class ModerateArticleView extends AppCompatActivity implements View.OnCli
 
     public void showToast(String message){
         Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 30);
+        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 150);
         toast.show();
     }
 

@@ -197,11 +197,9 @@ public class AuthView extends AppCompatActivity implements View.OnClickListener 
     public void addUserToFirestore(GoogleSignInAccount acct, String deviceId) {
         User user = new User(mAuth.getUid(), acct.getEmail(), acct.getDisplayName(), Objects.requireNonNull(acct.getPhotoUrl()).toString(), deviceId);
 
-        // Initialize new article document on database
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         DocumentReference newUserRef = database.collection("users").document(Objects.requireNonNull(mAuth.getUid()));
 
-        // Set Article to Database
         newUserRef.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {

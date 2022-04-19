@@ -370,7 +370,7 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
 
     public void showToast(String message){
         Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 150);
         toast.show();
     }
 
