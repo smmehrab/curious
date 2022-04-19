@@ -39,6 +39,7 @@
         <entry key="app/src/main/res/drawable/ic_liked.xml" value="0.19" />
         <entry key="app/src/main/res/drawable/ic_menu.xml" value="0.302" />
         <entry key="app/src/main/res/drawable/ic_new_article.xml" value="0.19" />
+        <entry key="app/src/main/res/drawable/ic_new_article_old.xml" value="0.346" />
         <entry key="app/src/main/res/drawable/ic_profile.xml" value="0.346" />
         <entry key="app/src/main/res/drawable/ic_save.xml" value="0.346" />
         <entry key="app/src/main/res/drawable/ic_saved.xml" value="0.346" />

@@ -390,7 +390,12 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
             @Override
             public void onFinish() {
                 view.setVisibility(View.VISIBLE);
-                moderateArticle(position);
+                if(!isConnectedToInternet()) {
+                    showToast("No Internet Connection");
+                }
+                else {
+                    moderateArticle(position);
+                }
             }
         }.start();
     }

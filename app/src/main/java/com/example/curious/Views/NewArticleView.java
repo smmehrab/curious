@@ -76,7 +76,9 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
     EditText newArticleTitle;
     EditText newArticleBody;
     Button newArticleCancel;
-    LoadingButton newArticlePost;
+    Button newArticlePost;
+    LoadingButton newArticleCancelLoading;
+    LoadingButton newArticlePostLoading;
 
     /** Toolbar Variables */
     private androidx.appcompat.widget.Toolbar toolbar;
@@ -134,8 +136,10 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
         newArticleCover = findViewById(R.id.new_article_cover);
         newArticleTitle = findViewById(R.id.new_article_title);
         newArticleBody = findViewById(R.id.new_article_body);
-        newArticleCancel = findViewById(R.id.new_article_cancel_btn);
-        newArticlePost = findViewById(R.id.new_article_post_btn_loading);
+        newArticleCancel = findViewById(R.id.new_article_cancel);
+        newArticlePost = findViewById(R.id.new_article_post);
+        newArticleCancelLoading = findViewById(R.id.new_article_cancel_loading);
+        newArticlePostLoading = findViewById(R.id.new_article_post_loading);
     }
 
     public void setToolbar(){
@@ -282,7 +286,8 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 showToast("[ERROR - FIREBASE] " + e.toString());
-                                newArticlePost.hideLoading();
+                                newArticlePostLoading.setVisibility(View.GONE);
+                                newArticlePost.setVisibility(View.VISIBLE);
                             }
                         });
                     }
@@ -290,7 +295,8 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         showToast("[ERROR - Storage] " + e.getMessage());
-                        newArticlePost.hideLoading();
+                        newArticlePostLoading.setVisibility(View.GONE);
+                        newArticlePost.setVisibility(View.VISIBLE);
                     }
                 });
             }
@@ -321,6 +327,8 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
             }.start();
         }
         else if(view == newArticleCancel) {
+            newArticleCancel.setVisibility(View.GONE);
+            newArticleCancelLoading.setVisibility(View.VISIBLE);
             Intent intent = null;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                 intent = new Intent(NewArticleView.this, ArticlesView.class);
@@ -334,7 +342,8 @@ public class NewArticleView extends AppCompatActivity implements View.OnClickLis
                     && !newArticleBody.getText().toString().isEmpty()
                     && !newArticleBody.getText().toString().equals(getResources().getString(R.string.txt_write_your_article))
                     && coverUri!=null) {
-                newArticlePost.showLoading();
+                newArticlePost.setVisibility(View.GONE);
+                newArticlePostLoading.setVisibility(View.VISIBLE);
                 postArticleToFirestore();
             }
             else {

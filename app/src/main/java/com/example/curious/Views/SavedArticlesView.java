@@ -447,7 +447,12 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
             @Override
             public void onFinish() {
                 view.setVisibility(View.VISIBLE);
-                viewArticle(position);
+                if(!isConnectedToInternet()) {
+                    showToast("No Internet Connection");
+                }
+                else {
+                    viewArticle(position);
+                }
             }
         }.start();
     }

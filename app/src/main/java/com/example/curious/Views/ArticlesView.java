@@ -68,8 +68,8 @@ import java.util.Objects;
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class ArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
 
-    ArrayList<Article> articles;
-    ArrayList<Article> newArticles;
+    private ArrayList<Article> articles;
+    private ArrayList<Article> newArticles;
 
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
@@ -125,7 +125,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         if(!isConnectedToInternet()) {
             showToast("No Internet Connection");
         }
-
         articles = new ArrayList<>();
         getActiveUser();
         setUI();
@@ -494,10 +493,12 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             public void onFinish() {
                 view.setVisibility(View.VISIBLE);
 
-                // Debug
-                showToast(articles.get(position).getAid());
-
-                viewArticle(position);
+                if(!isConnectedToInternet()) {
+                    showToast("No Internet Connection");
+                }
+                else {
+                    viewArticle(position);
+                }
             }
         }.start();
     }

@@ -128,28 +128,51 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:orientation="horizontal">
 
             <Button
-                android:id="@+id/new_article_cancel_btn"
+                android:id="@+id/new_article_cancel"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
-                android:background="@drawable/button_background"
-                android:textColor="@drawable/button_text_secondary"
+                android:background="@color/colorAccent"
+                android:textColor="@color/secondary_text"
                 android:text="@string/txt_cancel"/>
 
             <com.kusu.loadingbutton.LoadingButton
-                android:id="@+id/new_article_post_btn_loading"
+                android:id="@+id/new_article_cancel_loading"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="@string/txt_post"
-                android:background="@drawable/button_background"
-                android:textColor="@color/colorAccent"
+                android:text=""
+                android:background="@color/colorAccent"
+                app:lb_buttonColor="@color/colorAccent"
+                app:lb_loaderColor="@color/secondary_button"
+                app:lb_cornerRadius="0dp"
+                app:lb_isLoading="true"
+                android:visibility="gone"/>
+
+            <com.kusu.loadingbutton.LoadingButton
+                android:id="@+id/new_article_post_loading"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text=""
+                android:background="@color/colorPrimary"
                 app:lb_buttonColor="@color/colorPrimary"
-                app:lb_loaderColor="@color/colorAccent"/>
+                app:lb_loaderColor="@color/colorAccent"
+                app:lb_cornerRadius="0dp"
+                app:lb_isLoading="true"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/new_article_post"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/colorAccent"
+                android:text="@string/txt_post"/>
 
         </LinearLayout>
 
