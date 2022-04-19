@@ -277,6 +277,10 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             aid = intent.getStringExtra("view_article_aid");
             loadArticle(aid);
         }
+        else if(check.equals("view_saved_article")) {
+            aid = intent.getStringExtra("view_saved_article_aid");
+            loadArticle(aid);
+        }
         else {
             showToast("[ERROR] Couldn't Find Selected Article");
         }
@@ -655,9 +659,11 @@ public class ArticleView extends AppCompatActivity implements View.OnClickListen
             finish();
         }
         else if (id == R.id.user_saved_option) {
-            Snackbar.make(drawerLayout, "Saved Articles View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), SavedArticlesView.class);
-            // startActivity(intent);
+            Intent intent = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                intent = new Intent(getApplicationContext(), SavedArticlesView.class);
+            }
+            startActivity(intent);
         }
 
         else if (id == R.id.user_settings_option) {

@@ -358,9 +358,8 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
             finish();
         }
         else if (id == R.id.user_saved_option) {
-            Snackbar.make(drawerLayout, "Saved Articles View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), SavedArticlesView.class);
-            // startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(), SavedArticlesView.class);
+            startActivity(intent);
         }
 
         else if (id == R.id.user_settings_option) {
