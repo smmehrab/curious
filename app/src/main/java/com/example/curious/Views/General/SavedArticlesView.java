@@ -381,6 +381,7 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
             loadArticles("older");
         }
         else if(view == articlesLatest) {
+            articlesOlder.setVisibility(View.VISIBLE);
             articlesButtons.setVisibility(View.GONE);
             articlesLoading.setVisibility(View.VISIBLE);
             pageCount = 0;

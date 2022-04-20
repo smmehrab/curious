@@ -361,6 +361,7 @@ public class PostedArticlesView extends AppCompatActivity implements View.OnClic
             loadArticles("older");
         }
         else if(view == articlesLatest) {
+            articlesOlder.setVisibility(View.VISIBLE);
             articlesButtons.setVisibility(View.GONE);
             articlesLoading.setVisibility(View.VISIBLE);
             pageCount = 0;
