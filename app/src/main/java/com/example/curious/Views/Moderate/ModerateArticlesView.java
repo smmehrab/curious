@@ -1,8 +1,7 @@
-package com.example.curious.Views;
+package com.example.curious.Views.Moderate;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -10,7 +9,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -23,22 +21,23 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.curious.Models.Article;
-import com.example.curious.Models.User;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteHelper;
 import com.example.curious.ViewModels.ArticleAdapter;
+import com.example.curious.Views.General.ArticlesView;
+import com.example.curious.Views.Auth.AuthView;
+import com.example.curious.Views.Profile.ProfileView;
+import com.example.curious.Views.General.SavedArticlesView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -50,8 +49,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -59,11 +56,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.kusu.loadingbutton.LoadingButton;
 import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Objects;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class ModerateArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {

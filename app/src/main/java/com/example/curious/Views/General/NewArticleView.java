@@ -1,4 +1,4 @@
-package com.example.curious.Views;
+package com.example.curious.Views.General;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,7 +32,6 @@ import android.widget.Toast;
 
 import com.example.curious.Models.Article;
 import com.example.curious.Models.ArticleItem;
-import com.example.curious.Models.Comment;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteHelper;
@@ -47,8 +46,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.kusu.loadingbutton.LoadingButton;
-
-import java.util.List;
 
 public class NewArticleView extends AppCompatActivity implements View.OnClickListener{
 

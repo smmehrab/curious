@@ -16,35 +16,35 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Curious">
         <activity
-            android:name=".Views.PostedArticlesView"
+            android:name=".Views.Profile.PostedArticlesView"
             android:exported="false" />
         <activity
-            android:name=".Views.PublishedArticlesView"
+            android:name=".Views.Profile.PublishedArticlesView"
             android:exported="false" />
         <activity
-            android:name=".Views.ProfileView"
+            android:name=".Views.Profile.ProfileView"
             android:exported="false" />
         <activity
-            android:name=".Views.SavedArticlesView"
+            android:name=".Views.General.SavedArticlesView"
             android:exported="false" />
         <activity
-            android:name=".Views.ModerateArticleView"
+            android:name=".Views.Moderate.ModerateArticleView"
             android:exported="false" />
         <activity
-            android:name=".Views.ModerateArticlesView"
+            android:name=".Views.Moderate.ModerateArticlesView"
             android:exported="false" />
         <activity
-            android:name=".Views.NewArticleView"
+            android:name=".Views.General.NewArticleView"
             android:exported="false" />
         <activity
-            android:name=".Views.ArticleView"
+            android:name=".Views.General.ArticleView"
             android:exported="false" />
         <activity
-            android:name=".Views.ArticlesView"
+            android:name=".Views.General.ArticlesView"
             android:exported="false"
             android:launchMode = "singleTop"/>
         <activity
-            android:name=".Views.AuthView"
+            android:name=".Views.Auth.AuthView"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

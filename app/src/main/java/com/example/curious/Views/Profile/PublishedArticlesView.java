@@ -1,8 +1,7 @@
-package com.example.curious.Views;
+package com.example.curious.Views.Profile;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -10,9 +9,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +20,6 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -35,13 +31,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.curious.Models.Article;
-import com.example.curious.Models.ArticleItem;
-import com.example.curious.Models.User;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteHelper;
 import com.example.curious.ViewModels.ArticleAdapter;
-import com.example.curious.ViewModels.ArticleItemAdapter;
+import com.example.curious.Views.General.ArticleView;
+import com.example.curious.Views.Auth.AuthView;
+import com.example.curious.Views.Moderate.ModerateArticlesView;
+import com.example.curious.Views.General.SavedArticlesView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -62,16 +59,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.kusu.loadingbutton.LoadingButton;
 import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
-public class PostedArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleItemAdapter.OnArticleItemClickListener {
+public class PublishedArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
 
-    private ArrayList<ArticleItem> articles;
-    private ArrayList<ArticleItem> newArticles;
+    private ArrayList<Article> articles;
+    private ArrayList<Article> newArticles;
 
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
@@ -104,7 +100,7 @@ public class PostedArticlesView extends AppCompatActivity implements View.OnClic
 
     /** RecyclerView Variables */
     RecyclerView articlesRecyclerView;
-    ArticleItemAdapter articleAdapter;
+    ArticleAdapter articleAdapter;
 
     /** View Variables */
     Button articlesOlder;
@@ -118,7 +114,7 @@ public class PostedArticlesView extends AppCompatActivity implements View.OnClic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_posted_articles_view);
+        setContentView(R.layout.activity_published_articles_view);
 
         if(!isConnectedToInternet()) {
             showToast("No Internet Connection");
@@ -167,10 +163,10 @@ public class PostedArticlesView extends AppCompatActivity implements View.OnClic
 
     public void findXmlElements(){
         // Parent Layout
-        drawerLayout = (DrawerLayout) findViewById(R.id.posted_articles_drawer_layout);
+        drawerLayout = (DrawerLayout) findViewById(R.id.published_articles_drawer_layout);
 
         // Toolbar
-        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.posted_articles_toolbar);
+        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.published_articles_toolbar);
         userDrawerBtn = (Button) findViewById(R.id.user_drawer_btn);
         newArticleBtn = (Button) findViewById(R.id.new_article_btn);
         activityTitle = (TextView) findViewById(R.id.activity_title);
@@ -181,13 +177,13 @@ public class PostedArticlesView extends AppCompatActivity implements View.OnClic
         profileEmailTextView = (TextView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_email);
 
         // Recycler View
-        articlesRecyclerView = (RecyclerView) findViewById(R.id.posted_articles_recycler_view);
+        articlesRecyclerView = (RecyclerView) findViewById(R.id.published_articles_recycler_view);
 
         // View
-        articlesButtons = findViewById(R.id.posted_articles_buttons_ll);
-        articlesOlder = findViewById(R.id.posted_articles_older);
-        articlesLatest = findViewById(R.id.posted_articles_latest);
-        articlesLoading = findViewById(R.id.posted_articles_loading);
+        articlesButtons = findViewById(R.id.published_articles_buttons_ll);
+        articlesOlder = findViewById(R.id.published_articles_older);
+        articlesLatest = findViewById(R.id.published_articles_latest);
+        articlesLoading = findViewById(R.id.published_articles_loading);
     }
 
     public void setToolbar(){
@@ -195,7 +191,7 @@ public class PostedArticlesView extends AppCompatActivity implements View.OnClic
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         newArticleBtn.setVisibility(View.GONE);
-        activityTitle.setText(R.string.txt_posted_articles);
+        activityTitle.setText(R.string.txt_published_articles);
     }
 
     public void setListeners(){
@@ -232,7 +228,7 @@ public class PostedArticlesView extends AppCompatActivity implements View.OnClic
         profileEmailTextView.setText(activeUser.getName());
 
         articlesRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        articleAdapter = new ArticleItemAdapter(this, articles, this);
+        articleAdapter = new ArticleAdapter(this, articles, this);
         articlesRecyclerView.setAdapter(articleAdapter);
         articleAdapter.notifyDataSetChanged();
     }
@@ -249,7 +245,7 @@ public class PostedArticlesView extends AppCompatActivity implements View.OnClic
         newArticles = new ArrayList<>();
 
         FirebaseFirestore database = FirebaseFirestore.getInstance();
-        CollectionReference publishedRef = database.collection("users").document(activeUser.getUid()).collection("posted");
+        CollectionReference publishedRef = database.collection("users").document(activeUser.getUid()).collection("published");
 
         if(mode.isEmpty() || mode.equals("latest")) {
             query = publishedRef.orderBy("timestamp", Query.Direction.DESCENDING).limit(numberOfDocumentsPerQuery);
@@ -262,7 +258,7 @@ public class PostedArticlesView extends AppCompatActivity implements View.OnClic
             @Override
             public void onSuccess(QuerySnapshot documentSnapshots) {
                 for(QueryDocumentSnapshot documentSnapshot : documentSnapshots){
-                    ArticleItem article = documentSnapshot.toObject(ArticleItem.class);
+                    Article article = documentSnapshot.toObject(Article.class);
                     Date date = documentSnapshot.getDate("timestamp");
                     article.setDate(DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date));
                     newArticles.add(article);
@@ -309,22 +305,15 @@ public class PostedArticlesView extends AppCompatActivity implements View.OnClic
     /** View Article */
 
     public void viewArticle(int position){
-        ArticleItem article = articles.get(position);
-        String status = article.getStatus();
-
-        if(status.equals("Published")) {
-            Intent intent = new Intent(getApplicationContext(), ArticleView.class);
-            intent.putExtra("status", "view_posted_article");
-            sendAidToActivity(article.getAid(), intent);
-            startActivity(intent);
-        }
-        else {
-            showToast("You Can Only View Published Articles");
-        }
+        Article article = articles.get(position);
+        Intent intent = new Intent(getApplicationContext(), ArticleView.class);
+        intent.putExtra("status", "view_published_article");
+        sendAidToActivity(article.getAid(), intent);
+        startActivity(intent);
     }
 
     public void sendAidToActivity(String aid, Intent intent){
-        intent.putExtra("view_posted_article_aid", aid);
+        intent.putExtra("view_published_article_aid", aid);
     }
 
     /** Listeners */
@@ -413,7 +402,7 @@ public class PostedArticlesView extends AppCompatActivity implements View.OnClic
     }
 
     @Override
-    public void onArticleItemClick(View view, int position) {
+    public void onArticleClick(View view, int position) {
         new CountDownTimer(100, 20) {
             int i;
             @Override
@@ -472,6 +461,7 @@ public class PostedArticlesView extends AppCompatActivity implements View.OnClic
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
     }
+
 
     /** Others */
 

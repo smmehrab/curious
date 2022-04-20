@@ -1,8 +1,7 @@
-package com.example.curious.Views;
+package com.example.curious.Views.Profile;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -10,9 +9,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +20,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,12 +30,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.curious.Models.Article;
-import com.example.curious.Models.User;
+import com.example.curious.Models.ArticleItem;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteHelper;
-import com.example.curious.ViewModels.ArticleAdapter;
+import com.example.curious.ViewModels.ArticleItemAdapter;
+import com.example.curious.Views.General.ArticleView;
+import com.example.curious.Views.Auth.AuthView;
+import com.example.curious.Views.Moderate.ModerateArticlesView;
+import com.example.curious.Views.General.SavedArticlesView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -59,17 +59,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.kusu.loadingbutton.LoadingButton;
 import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
-@RequiresApi(api = Build.VERSION_CODES.M)
-public class SavedArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
+public class PostedArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleItemAdapter.OnArticleItemClickListener {
 
-    ArrayList<Article> articles;
-    ArrayList<Article> newArticles;
+    private ArrayList<ArticleItem> articles;
+    private ArrayList<ArticleItem> newArticles;
 
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
@@ -102,7 +100,7 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
 
     /** RecyclerView Variables */
     RecyclerView articlesRecyclerView;
-    ArticleAdapter articleAdapter;
+    ArticleItemAdapter articleAdapter;
 
     /** View Variables */
     Button articlesOlder;
@@ -113,19 +111,14 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
     /** Active User Variable */
     public static com.example.curious.Models.User activeUser;
 
-    /** Others */
-    private boolean doubleBackToExitPressedOnce = false;
-    private Integer scrollViewPos;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_saved_articles_view);
+        setContentView(R.layout.activity_posted_articles_view);
 
         if(!isConnectedToInternet()) {
             showToast("No Internet Connection");
         }
-
         articles = new ArrayList<>();
         getActiveUser();
         setUI();
@@ -170,10 +163,10 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
 
     public void findXmlElements(){
         // Parent Layout
-        drawerLayout = (DrawerLayout) findViewById(R.id.saved_articles_drawer_layout);
+        drawerLayout = (DrawerLayout) findViewById(R.id.posted_articles_drawer_layout);
 
         // Toolbar
-        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.saved_articles_toolbar);
+        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.posted_articles_toolbar);
         userDrawerBtn = (Button) findViewById(R.id.user_drawer_btn);
         newArticleBtn = (Button) findViewById(R.id.new_article_btn);
         activityTitle = (TextView) findViewById(R.id.activity_title);
@@ -184,21 +177,21 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
         profileEmailTextView = (TextView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_email);
 
         // Recycler View
-        articlesRecyclerView = (RecyclerView) findViewById(R.id.saved_articles_recycler_view);
+        articlesRecyclerView = (RecyclerView) findViewById(R.id.posted_articles_recycler_view);
 
         // View
-        articlesButtons = findViewById(R.id.saved_articles_buttons_ll);
-        articlesOlder = findViewById(R.id.saved_articles_older);
-        articlesLatest = findViewById(R.id.saved_articles_latest);
-        articlesLoading = findViewById(R.id.saved_articles_loading);
+        articlesButtons = findViewById(R.id.posted_articles_buttons_ll);
+        articlesOlder = findViewById(R.id.posted_articles_older);
+        articlesLatest = findViewById(R.id.posted_articles_latest);
+        articlesLoading = findViewById(R.id.posted_articles_loading);
     }
 
-    @SuppressLint("RestrictedApi")
     public void setToolbar(){
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        activityTitle.setText(R.string.txt_saved_articles);
+        newArticleBtn.setVisibility(View.GONE);
+        activityTitle.setText(R.string.txt_posted_articles);
     }
 
     public void setListeners(){
@@ -231,14 +224,11 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
         networkReceiver = new NetworkReceiver();
         broadcastIntent();
 
-        userNavigationView.getMenu().getItem(3).setChecked(true);
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
         profileEmailTextView.setText(activeUser.getName());
-        userNavigationView.getMenu().findItem(R.id.user_moderate_option).setVisible(isModerator);
 
-        // Recycle View
         articlesRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        articleAdapter = new ArticleAdapter(this, articles, this);
+        articleAdapter = new ArticleItemAdapter(this, articles, this);
         articlesRecyclerView.setAdapter(articleAdapter);
         articleAdapter.notifyDataSetChanged();
     }
@@ -255,10 +245,10 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
         newArticles = new ArrayList<>();
 
         FirebaseFirestore database = FirebaseFirestore.getInstance();
-        CollectionReference articlesRef = database.collection("users").document(activeUser.getUid()).collection("savedArticles");
+        CollectionReference publishedRef = database.collection("users").document(activeUser.getUid()).collection("posted");
 
         if(mode.isEmpty() || mode.equals("latest")) {
-            query = articlesRef.orderBy("timestamp", Query.Direction.DESCENDING).limit(numberOfDocumentsPerQuery);
+            query = publishedRef.orderBy("timestamp", Query.Direction.DESCENDING).limit(numberOfDocumentsPerQuery);
         }
         else {
             query = nextQuery;
@@ -268,7 +258,7 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
             @Override
             public void onSuccess(QuerySnapshot documentSnapshots) {
                 for(QueryDocumentSnapshot documentSnapshot : documentSnapshots){
-                    Article article = documentSnapshot.toObject(Article.class);
+                    ArticleItem article = documentSnapshot.toObject(ArticleItem.class);
                     Date date = documentSnapshot.getDate("timestamp");
                     article.setDate(DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT).format(date));
                     newArticles.add(article);
@@ -281,7 +271,7 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
                 }
                 else {
                     lastArticle = documentSnapshots.getDocuments().get(documentSnapshots.size()-1);
-                    nextQuery = articlesRef.orderBy("timestamp", Query.Direction.DESCENDING).startAfter(lastArticle).limit(numberOfDocumentsPerQuery);
+                    nextQuery = publishedRef.orderBy("timestamp", Query.Direction.DESCENDING).startAfter(lastArticle).limit(numberOfDocumentsPerQuery);
                 }
 
                 articles = newArticles;
@@ -291,6 +281,7 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
             @Override
             public void onFailure(@NonNull Exception e) {
                 showToast("[ERROR - Firestore] " + e.getMessage());
+                Log.d("[ERROR]",e.getMessage());
             }
         });
     }
@@ -314,36 +305,22 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
     /** View Article */
 
     public void viewArticle(int position){
-        Article article = articles.get(position);
-        Intent intent = new Intent(SavedArticlesView.this, ArticleView.class);
-        intent.putExtra("status", "view_saved_article");
-        sendAidToActivity(article.getAid(), intent);
-        startActivity(intent);
+        ArticleItem article = articles.get(position);
+        String status = article.getStatus();
+
+        if(status.equals("Published")) {
+            Intent intent = new Intent(getApplicationContext(), ArticleView.class);
+            intent.putExtra("status", "view_posted_article");
+            sendAidToActivity(article.getAid(), intent);
+            startActivity(intent);
+        }
+        else {
+            showToast("You Can Only View Published Articles");
+        }
     }
 
     public void sendAidToActivity(String aid, Intent intent){
-        intent.putExtra("view_saved_article_aid", aid);
-    }
-
-    /** Others */
-
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent(getApplicationContext(), ArticlesView.class);
-        startActivity(intent);
-        finish();
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-    }
-
-    public void showToast(String message){
-        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 150);
-        toast.show();
+        intent.putExtra("view_posted_article_aid", aid);
     }
 
     /** Listeners */
@@ -389,6 +366,7 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -402,12 +380,11 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
             startActivity(intent);
         }
         else if (id == R.id.user_articles_option) {
-            Intent intent = new Intent(getApplicationContext(), ArticlesView.class);
-            startActivity(intent);
-            finish();
+            startActivity(getIntent());
         }
         else if (id == R.id.user_saved_option) {
-            startActivity(getIntent());
+            Intent intent = new Intent(getApplicationContext(), SavedArticlesView.class);
+            startActivity(intent);
         }
 
         else if (id == R.id.user_settings_option) {
@@ -432,7 +409,7 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
     }
 
     @Override
-    public void onArticleClick(View view, int position) {
+    public void onArticleItemClick(View view, int position) {
         new CountDownTimer(100, 20) {
             int i;
             @Override
@@ -448,6 +425,7 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
             @Override
             public void onFinish() {
                 view.setVisibility(View.VISIBLE);
+
                 if(!isConnectedToInternet()) {
                     showToast("No Internet Connection");
                 }
@@ -489,6 +467,27 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
+    }
+
+    /** Others */
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(getApplicationContext(), ProfileView.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
+
+    public void showToast(String message){
+        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER | Gravity.BOTTOM, 0, 150);
+        toast.show();
     }
 
     /** For Checking Network Connection */

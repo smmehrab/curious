@@ -1,4 +1,4 @@
-package com.example.curious.Views;
+package com.example.curious.Views.Auth;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.example.curious.Models.User;
 import com.example.curious.R;
 import com.example.curious.Util.SQLiteHelper;
+import com.example.curious.Views.General.ArticlesView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;

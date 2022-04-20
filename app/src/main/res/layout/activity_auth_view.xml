@@ -9,7 +9,7 @@
     android:orientation="vertical"
     android:padding="50dp"
     android:id="@+id/sign_in_activity"
-    tools:context=".Views.AuthView">
+    tools:context=".Views.Auth.AuthView">
 
     <LinearLayout
         android:layout_width="match_parent"
