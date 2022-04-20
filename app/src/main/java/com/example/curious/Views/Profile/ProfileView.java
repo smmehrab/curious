@@ -167,7 +167,7 @@ public class ProfileView extends AppCompatActivity implements View.OnClickListen
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        newArticleBtn.setVisibility(View.GONE);
+        newArticleBtn.setVisibility(View.INVISIBLE);
         activityTitle.setText(R.string.txt_profile);
     }
 
