@@ -47,8 +47,7 @@
             android:id="@+id/sign_in_with_google"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:background="@drawable/button_background_round"
-            android:textColor="@drawable/button_text"
+            android:background="@drawable/button_black_round"
             android:clickable="true"
             android:focusable="true"
             android:longClickable="true"
@@ -71,7 +70,7 @@
                 android:textSize="16sp"
                 android:text="@string/sign_in_with_google_btn_txt"
                 android:gravity="center"
-                android:textColor="@drawable/button_text"/>
+                android:textColor="@color/colorAccent"/>
 
         </LinearLayout>
 
@@ -84,7 +83,7 @@
             android:textColor="@color/secondary_text"
             app:lb_buttonColor="@color/colorPrimary"
             app:lb_loaderColor="@color/colorAccent"
-            app:lb_cornerRadius="0dp"
+            app:lb_cornerRadius="5dp"
             app:lb_isLoading="true"
             android:visibility="gone"/>
 
