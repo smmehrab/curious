@@ -36,6 +36,7 @@ import com.example.curious.Util.SQLiteHelper;
 import com.example.curious.ViewModels.ArticleAdapter;
 import com.example.curious.Views.General.ArticlesView;
 import com.example.curious.Views.Auth.AuthView;
+import com.example.curious.Views.Others.AboutView;
 import com.example.curious.Views.Others.SettingsView;
 import com.example.curious.Views.Profile.ProfileView;
 import com.example.curious.Views.General.SavedArticlesView;
@@ -353,9 +354,8 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
             startActivity(intent);
         }
         else if (id == R.id.user_about_option) {
-            Snackbar.make(drawerLayout, "About View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), AboutView.class);
-            // startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(), AboutView.class);
+            startActivity(intent);
         }
         else if (id == R.id.user_sign_out_option) {
             if(!isConnectedToInternet())

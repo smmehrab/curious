@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Curious">
         <activity
+            android:name=".Views.Others.AboutView"
+            android:exported="false" />
+        <activity
             android:name=".Views.Others.SettingsView"
             android:exported="false" />
         <activity

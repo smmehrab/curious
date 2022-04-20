@@ -39,6 +39,7 @@ import com.example.curious.Views.General.ArticleView;
 import com.example.curious.Views.Auth.AuthView;
 import com.example.curious.Views.Moderate.ModerateArticlesView;
 import com.example.curious.Views.General.SavedArticlesView;
+import com.example.curious.Views.Others.AboutView;
 import com.example.curious.Views.Others.SettingsView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -385,9 +386,8 @@ public class PublishedArticlesView extends AppCompatActivity implements View.OnC
              startActivity(intent);
         }
         else if (id == R.id.user_about_option) {
-            Snackbar.make(drawerLayout, "About View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), AboutView.class);
-            // startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(), AboutView.class);
+            startActivity(intent);
         }
         else if (id == R.id.user_sign_out_option) {
             if(!isConnectedToInternet())

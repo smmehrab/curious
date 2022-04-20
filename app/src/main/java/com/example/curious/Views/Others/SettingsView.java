@@ -227,9 +227,8 @@ public class SettingsView extends AppCompatActivity implements View.OnClickListe
             startActivity(getIntent());
         }
         else if (id == R.id.user_about_option) {
-            Snackbar.make(drawerLayout, "About View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), AboutView.class);
-            // startActivity(intent);
+             Intent intent = new Intent(getApplicationContext(), AboutView.class);
+             startActivity(intent);
         }
         else if (id == R.id.user_sign_out_option) {
             if(!isConnectedToInternet())
