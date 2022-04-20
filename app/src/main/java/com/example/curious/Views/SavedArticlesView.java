@@ -231,8 +231,10 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
         networkReceiver = new NetworkReceiver();
         broadcastIntent();
 
+        userNavigationView.getMenu().getItem(3).setChecked(true);
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
         profileEmailTextView.setText(activeUser.getName());
+        userNavigationView.getMenu().findItem(R.id.user_moderate_option).setVisible(isModerator);
 
         // Recycle View
         articlesRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));

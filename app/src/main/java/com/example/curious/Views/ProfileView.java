@@ -189,8 +189,10 @@ public class ProfileView extends AppCompatActivity implements View.OnClickListen
         networkReceiver = new NetworkReceiver();
         broadcastIntent();
 
+        userNavigationView.getMenu().getItem(0).setChecked(true);
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
         profileEmailTextView.setText(activeUser.getName());
+        userNavigationView.getMenu().findItem(R.id.user_moderate_option).setVisible(isModerator);
 
         Picasso.get().load(activeUser.getPhoto()).into(userPhoto);
         userName.setText(activeUser.getName());

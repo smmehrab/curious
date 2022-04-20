@@ -200,6 +200,7 @@ public class ModerateArticlesView extends AppCompatActivity implements View.OnCl
         networkReceiver = new NetworkReceiver();
         broadcastIntent();
 
+        userNavigationView.getMenu().getItem(1).setChecked(true);
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
         profileEmailTextView.setText(activeUser.getName());
         userNavigationView.getMenu().findItem(R.id.user_moderate_option).setVisible(isModerator);
