@@ -394,6 +394,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             loadArticles("older");
         }
         else if(view == articlesLatest) {
+            articlesOlder.setVisibility(View.VISIBLE);
             articlesButtons.setVisibility(View.GONE);
             articlesLoading.setVisibility(View.VISIBLE);
             pageCount = 0;
