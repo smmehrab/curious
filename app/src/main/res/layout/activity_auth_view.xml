@@ -9,41 +9,45 @@
     android:orientation="vertical"
     android:padding="50dp"
     android:id="@+id/sign_in_activity"
-    tools:context=".Views.AuthView">
+    tools:context=".Views.Auth.AuthView">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:weightSum="7">
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
-
-        </LinearLayout>
+            android:layout_weight="1" />
 
         <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="4"
+            android:id="@+id/auth_logo"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
             android:src="@drawable/curious" />
+
+        <TextView
+            android:id="@+id/auth_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="@color/primary_text"
+            android:text="Curious: A Writing Platform"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1.5">
-
-        </LinearLayout>
+            android:layout_weight="1" />
 
         <LinearLayout
             android:id="@+id/sign_in_with_google"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.5"
-            android:background="@drawable/button_background_round"
-            android:textColor="@drawable/button_text"
+            android:layout_height="60dp"
+            android:background="@drawable/button_black_round"
             android:clickable="true"
             android:focusable="true"
             android:longClickable="true"
@@ -51,7 +55,7 @@
             android:padding="10dp"
             android:elevation="4dp"
             android:gravity="center"
-            android:visibility="visible">
+            android:visibility="invisible">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -66,21 +70,20 @@
                 android:textSize="16sp"
                 android:text="@string/sign_in_with_google_btn_txt"
                 android:gravity="center"
-                android:textColor="@drawable/button_text"/>
+                android:textColor="@color/colorAccent"/>
 
         </LinearLayout>
 
         <com.kusu.loadingbutton.LoadingButton
             android:id="@+id/sign_in_with_google_loading"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.5"
+            android:layout_height="60dp"
             android:text=""
             android:background="@drawable/button_background"
             android:textColor="@color/secondary_text"
             app:lb_buttonColor="@color/colorPrimary"
             app:lb_loaderColor="@color/colorAccent"
-            app:lb_cornerRadius="0dp"
+            app:lb_cornerRadius="5dp"
             app:lb_isLoading="true"
             android:visibility="gone"/>
 

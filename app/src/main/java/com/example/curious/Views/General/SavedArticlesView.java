@@ -1,8 +1,7 @@
-package com.example.curious.Views;
+package com.example.curious.Views.General;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -10,7 +9,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -23,7 +21,6 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,11 +31,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.curious.Models.Article;
-import com.example.curious.Models.User;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteHelper;
 import com.example.curious.ViewModels.ArticleAdapter;
+import com.example.curious.Views.Auth.AuthView;
+import com.example.curious.Views.Moderate.ModerateArticlesView;
+import com.example.curious.Views.Others.AboutView;
+import com.example.curious.Views.Others.SettingsView;
+import com.example.curious.Views.Profile.ProfileView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -59,11 +60,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.kusu.loadingbutton.LoadingButton;
 import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Objects;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class SavedArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
@@ -231,8 +230,10 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
         networkReceiver = new NetworkReceiver();
         broadcastIntent();
 
+        userNavigationView.getMenu().getItem(3).setChecked(true);
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
         profileEmailTextView.setText(activeUser.getName());
+        userNavigationView.getMenu().findItem(R.id.user_moderate_option).setVisible(isModerator);
 
         // Recycle View
         articlesRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -409,14 +410,12 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
         }
 
         else if (id == R.id.user_settings_option) {
-            Snackbar.make(drawerLayout, "Settings View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), SettingsView.class);
-            // startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(), SettingsView.class);
+            startActivity(intent);
         }
         else if (id == R.id.user_about_option) {
-            Snackbar.make(drawerLayout, "About View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), AboutView.class);
-            // startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(), AboutView.class);
+            startActivity(intent);
         }
         else if (id == R.id.user_sign_out_option) {
             if(!isConnectedToInternet())

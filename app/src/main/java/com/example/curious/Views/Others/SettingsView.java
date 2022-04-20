@@ -1,4 +1,4 @@
-package com.example.curious.Views;
+package com.example.curious.Views.Others;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -6,11 +6,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,7 +17,6 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,11 +26,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.curious.Models.Article;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteHelper;
-import com.example.curious.ViewModels.ArticleAdapter;
+import com.example.curious.Views.General.ArticlesView;
+import com.example.curious.Views.Auth.AuthView;
+import com.example.curious.Views.Moderate.ModerateArticlesView;
+import com.example.curious.Views.General.SavedArticlesView;
+import com.example.curious.Views.Profile.ProfileView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -52,9 +50,9 @@ import com.kusu.loadingbutton.LoadingButton;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
+import java.util.Objects;
 
-public class ProfileView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class SettingsView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     /** Network Variables */
     private BroadcastReceiver networkReceiver = null;
@@ -65,7 +63,6 @@ public class ProfileView extends AppCompatActivity implements View.OnClickListen
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth.AuthStateListener mAuthListener;
     GoogleSignInOptions googleSignInOptions;
-    private Query query;
     private boolean isModerator = false;
 
     /** Navigation Drawer Variables */
@@ -81,22 +78,13 @@ public class ProfileView extends AppCompatActivity implements View.OnClickListen
     private Button newArticleBtn;
     private TextView activityTitle;
 
-    /** View Variables */
-    CircularImageView userPhoto;
-    TextView userName;
-    TextView userEmail;
-    LinearLayout publishedArticlesClickable;
-    LoadingButton publishedArticlesLoading;
-    LinearLayout postedArticlesClickable;
-    LoadingButton postedArticlesLoading;
-
     /** Active User Variable */
     public static com.example.curious.Models.User activeUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile_view);
+        setContentView(R.layout.activity_settings_view);
 
         if(!isConnectedToInternet()) {
             showToast("No Internet Connection");
@@ -145,10 +133,10 @@ public class ProfileView extends AppCompatActivity implements View.OnClickListen
 
     public void findXmlElements(){
         // Parent Layout
-        drawerLayout = (DrawerLayout) findViewById(R.id.profile_drawer_layout);
+        drawerLayout = (DrawerLayout) findViewById(R.id.settings_drawer_layout);
 
         // Toolbar
-        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.profile_toolbar);
+        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.settings_toolbar);
         userDrawerBtn = (Button) findViewById(R.id.user_drawer_btn);
         newArticleBtn = (Button) findViewById(R.id.new_article_btn);
         activityTitle = (TextView) findViewById(R.id.activity_title);
@@ -157,31 +145,20 @@ public class ProfileView extends AppCompatActivity implements View.OnClickListen
         userNavigationView = (NavigationView) findViewById(R.id.user_navigation_view);
         profilePictureImageView = (ImageView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_picture);
         profileEmailTextView = (TextView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_email);
-
-        // View
-        userPhoto = findViewById(R.id.profile_user_photo);
-        userName = findViewById(R.id.profile_user_name);
-        userEmail = findViewById(R.id.profile_user_email);
-        publishedArticlesClickable = findViewById(R.id.profile_published_articles_clickable);
-        publishedArticlesLoading = findViewById(R.id.profile_published_articles_loading);
-        postedArticlesClickable = findViewById(R.id.profile_posted_articles_clickable);
-        postedArticlesLoading = findViewById(R.id.profile_posted_articles_loading);
     }
 
     public void setToolbar(){
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        newArticleBtn.setVisibility(View.GONE);
-        activityTitle.setText(R.string.txt_profile);
+        newArticleBtn.setVisibility(View.INVISIBLE);
+        activityTitle.setText(R.string.txt_settings);
     }
 
     public void setListeners(){
         drawerLayout.setDrawerListener(drawerToggle);
         userDrawerBtn.setOnClickListener(this);
         userNavigationView.setNavigationItemSelectedListener(this);
-        publishedArticlesClickable.setOnClickListener(this);
-        postedArticlesClickable.setOnClickListener(this);
     }
 
     public void initializeUI(){
@@ -189,12 +166,10 @@ public class ProfileView extends AppCompatActivity implements View.OnClickListen
         networkReceiver = new NetworkReceiver();
         broadcastIntent();
 
+        userNavigationView.getMenu().getItem(5).setChecked(true);
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
         profileEmailTextView.setText(activeUser.getName());
-
-        Picasso.get().load(activeUser.getPhoto()).into(userPhoto);
-        userName.setText(activeUser.getName());
-        userEmail.setText(activeUser.getEmail());
+        userNavigationView.getMenu().findItem(R.id.user_moderate_option).setVisible(isModerator);
     }
 
     /** Listeners */
@@ -226,54 +201,6 @@ public class ProfileView extends AppCompatActivity implements View.OnClickListen
                 }
             }.start();
         }
-        else if(view == publishedArticlesClickable) {
-            publishedArticlesLoading.setVisibility(View.VISIBLE);
-            new CountDownTimer(100, 20) {
-                int i;
-                @Override
-                public void onTick(long l) {
-                    if (i % 2 == 0) {
-                        publishedArticlesClickable.setVisibility(View.INVISIBLE);
-                    } else {
-                        publishedArticlesClickable.setVisibility(View.VISIBLE);
-                    }
-                    i++;
-                }
-
-                @RequiresApi(api = Build.VERSION_CODES.M)
-                @Override
-                public void onFinish() {
-                    publishedArticlesClickable.setVisibility(View.VISIBLE);
-
-                    Intent intent = new Intent(getApplicationContext(), PublishedArticlesView.class);
-                    startActivity(intent);
-                }
-            }.start();
-        }
-        else if(view == postedArticlesClickable) {
-            postedArticlesLoading.setVisibility(View.VISIBLE);
-            new CountDownTimer(100, 20) {
-                int i;
-                @Override
-                public void onTick(long l) {
-                    if (i % 2 == 0) {
-                        postedArticlesClickable.setVisibility(View.INVISIBLE);
-                    } else {
-                        postedArticlesClickable.setVisibility(View.VISIBLE);
-                    }
-                    i++;
-                }
-
-                @RequiresApi(api = Build.VERSION_CODES.M)
-                @Override
-                public void onFinish() {
-                    postedArticlesClickable.setVisibility(View.VISIBLE);
-
-                    Intent intent = new Intent(getApplicationContext(), PostedArticlesView.class);
-                    startActivity(intent);
-                }
-            }.start();
-        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -282,7 +209,8 @@ public class ProfileView extends AppCompatActivity implements View.OnClickListen
         int id = item.getItemId();
 
         if (id == R.id.user_profile_option) {
-            startActivity(getIntent());
+            Intent intent = new Intent(getApplicationContext(), ProfileView.class);
+            startActivity(intent);
         }
         else if(id == R.id.user_moderate_option) {
             Intent intent = new Intent(getApplicationContext(), ModerateArticlesView.class);
@@ -295,16 +223,12 @@ public class ProfileView extends AppCompatActivity implements View.OnClickListen
             Intent intent = new Intent(getApplicationContext(), SavedArticlesView.class);
             startActivity(intent);
         }
-
         else if (id == R.id.user_settings_option) {
-            Snackbar.make(drawerLayout, "Settings View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), SettingsView.class);
-            // startActivity(intent);
+            startActivity(getIntent());
         }
         else if (id == R.id.user_about_option) {
-            Snackbar.make(drawerLayout, "About View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), AboutView.class);
-            // startActivity(intent);
+             Intent intent = new Intent(getApplicationContext(), AboutView.class);
+             startActivity(intent);
         }
         else if (id == R.id.user_sign_out_option) {
             if(!isConnectedToInternet())

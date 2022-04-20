@@ -5,7 +5,7 @@
     android:id="@+id/article_drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Views.ArticleView"
+    tools:context=".Views.General.ArticleView"
     android:background="@color/white">
 
     <LinearLayout

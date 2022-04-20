@@ -1,8 +1,7 @@
-package com.example.curious.Views;
+package com.example.curious.Views.Profile;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -10,9 +9,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +20,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,11 +31,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.curious.Models.Article;
-import com.example.curious.Models.User;
 import com.example.curious.R;
 import com.example.curious.Util.NetworkReceiver;
 import com.example.curious.Util.SQLiteHelper;
 import com.example.curious.ViewModels.ArticleAdapter;
+import com.example.curious.Views.General.ArticleView;
+import com.example.curious.Views.Auth.AuthView;
+import com.example.curious.Views.Moderate.ModerateArticlesView;
+import com.example.curious.Views.General.SavedArticlesView;
+import com.example.curious.Views.Others.AboutView;
+import com.example.curious.Views.Others.SettingsView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -59,14 +61,12 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.kusu.loadingbutton.LoadingButton;
 import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
-@RequiresApi(api = Build.VERSION_CODES.M)
-public class ArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
+public class PublishedArticlesView extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, ArticleAdapter.OnArticleClickListener {
 
     private ArrayList<Article> articles;
     private ArrayList<Article> newArticles;
@@ -113,14 +113,10 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
     /** Active User Variable */
     public static com.example.curious.Models.User activeUser;
 
-    /** Others */
-    private boolean doubleBackToExitPressedOnce = false;
-    private Integer scrollViewPos;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_articles_view);
+        setContentView(R.layout.activity_published_articles_view);
 
         if(!isConnectedToInternet()) {
             showToast("No Internet Connection");
@@ -169,10 +165,10 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
     public void findXmlElements(){
         // Parent Layout
-        drawerLayout = (DrawerLayout) findViewById(R.id.articles_drawer_layout);
+        drawerLayout = (DrawerLayout) findViewById(R.id.published_articles_drawer_layout);
 
         // Toolbar
-        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.articles_toolbar);
+        toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.published_articles_toolbar);
         userDrawerBtn = (Button) findViewById(R.id.user_drawer_btn);
         newArticleBtn = (Button) findViewById(R.id.new_article_btn);
         activityTitle = (TextView) findViewById(R.id.activity_title);
@@ -183,20 +179,21 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         profileEmailTextView = (TextView) userNavigationView.getHeaderView(0).findViewById(R.id.user_profile_email);
 
         // Recycler View
-        articlesRecyclerView = (RecyclerView) findViewById(R.id.articles_recycler_view);
+        articlesRecyclerView = (RecyclerView) findViewById(R.id.published_articles_recycler_view);
 
         // View
-        articlesButtons = findViewById(R.id.articles_buttons_ll);
-        articlesOlder = findViewById(R.id.articles_older);
-        articlesLatest = findViewById(R.id.articles_latest);
-        articlesLoading = findViewById(R.id.articles_loading);
+        articlesButtons = findViewById(R.id.published_articles_buttons_ll);
+        articlesOlder = findViewById(R.id.published_articles_older);
+        articlesLatest = findViewById(R.id.published_articles_latest);
+        articlesLoading = findViewById(R.id.published_articles_loading);
     }
 
     public void setToolbar(){
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        activityTitle.setText(R.string.txt_articles);
+        newArticleBtn.setVisibility(View.GONE);
+        activityTitle.setText(R.string.txt_published_articles);
     }
 
     public void setListeners(){
@@ -217,24 +214,8 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             }
 
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (dx > 0) {
-                    System.out.println("Scrolled Right");
-                }
-                else if (dx < 0) {
-                    System.out.println("Scrolled Left");
-                }
-                else {
-                    System.out.println("No Horizontal Scrolled");
-                }
-
-                if (dy > 0) {
-                    System.out.println("Scrolled Downwards");
-                }
-                else if (dy < 0) {
+                if (dy < 0) {
                     articlesButtons.setVisibility(View.GONE);
-                }
-                else {
-                    System.out.println("No Vertical Scrolled");
                 }
             }
         });
@@ -248,7 +229,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         Picasso.get().load(activeUser.getPhoto()).into(profilePictureImageView);
         profileEmailTextView.setText(activeUser.getName());
 
-        // Recycle View
         articlesRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         articleAdapter = new ArticleAdapter(this, articles, this);
         articlesRecyclerView.setAdapter(articleAdapter);
@@ -267,10 +247,10 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         newArticles = new ArrayList<>();
 
         FirebaseFirestore database = FirebaseFirestore.getInstance();
-        CollectionReference articlesRef = database.collection("articles");
+        CollectionReference publishedRef = database.collection("users").document(activeUser.getUid()).collection("published");
 
         if(mode.isEmpty() || mode.equals("latest")) {
-            query = articlesRef.orderBy("timestamp", Query.Direction.DESCENDING).limit(numberOfDocumentsPerQuery);
+            query = publishedRef.orderBy("timestamp", Query.Direction.DESCENDING).limit(numberOfDocumentsPerQuery);
         }
         else {
             query = nextQuery;
@@ -293,7 +273,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                 }
                 else {
                     lastArticle = documentSnapshots.getDocuments().get(documentSnapshots.size()-1);
-                    nextQuery = articlesRef.orderBy("timestamp", Query.Direction.DESCENDING).startAfter(lastArticle).limit(numberOfDocumentsPerQuery);
+                    nextQuery = publishedRef.orderBy("timestamp", Query.Direction.DESCENDING).startAfter(lastArticle).limit(numberOfDocumentsPerQuery);
                 }
 
                 articles = newArticles;
@@ -303,6 +283,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onFailure(@NonNull Exception e) {
                 showToast("[ERROR - Firestore] " + e.getMessage());
+                Log.d("[ERROR]",e.getMessage());
             }
         });
     }
@@ -327,14 +308,14 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
     public void viewArticle(int position){
         Article article = articles.get(position);
-        Intent intent = new Intent(ArticlesView.this, ArticleView.class);
-        intent.putExtra("status", "view_article");
+        Intent intent = new Intent(getApplicationContext(), ArticleView.class);
+        intent.putExtra("status", "view_published_article");
         sendAidToActivity(article.getAid(), intent);
         startActivity(intent);
     }
 
     public void sendAidToActivity(String aid, Intent intent){
-        intent.putExtra("view_article_aid", aid);
+        intent.putExtra("view_published_article_aid", aid);
     }
 
     /** Listeners */
@@ -366,27 +347,6 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
                 }
             }.start();
         }
-        else if(view == newArticleBtn) {
-            new CountDownTimer(100, 20) {
-                int i;
-                @Override
-                public void onTick(long l) {
-                    if (i % 2 == 0) {
-                        newArticleBtn.setVisibility(View.INVISIBLE);
-                    } else {
-                        newArticleBtn.setVisibility(View.VISIBLE);
-                    }
-                    i++;
-                }
-
-                @Override
-                public void onFinish() {
-                    newArticleBtn.setVisibility(View.VISIBLE);
-                    Intent intent = new Intent(ArticlesView.this, NewArticleView.class);
-                    startActivity(intent);
-                }
-            }.start();
-        }
         else if(view == articlesOlder) {
             articlesButtons.setVisibility(View.GONE);
             articlesLoading.setVisibility(View.VISIBLE);
@@ -401,6 +361,7 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -420,16 +381,13 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
             Intent intent = new Intent(getApplicationContext(), SavedArticlesView.class);
             startActivity(intent);
         }
-
         else if (id == R.id.user_settings_option) {
-            Snackbar.make(drawerLayout, "Settings View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), SettingsView.class);
-            // startActivity(intent);
+             Intent intent = new Intent(getApplicationContext(), SettingsView.class);
+             startActivity(intent);
         }
         else if (id == R.id.user_about_option) {
-            Snackbar.make(drawerLayout, "About View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), AboutView.class);
-            // startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(), AboutView.class);
+            startActivity(intent);
         }
         else if (id == R.id.user_sign_out_option) {
             if(!isConnectedToInternet())
@@ -508,19 +466,9 @@ public class ArticlesView extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            super.finish();
-            moveTaskToBack(true);
-            return;
-        }
-        this.doubleBackToExitPressedOnce = true;
-        showToast("Press Once Again to EXIT");
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce=false;
-            }
-        }, 2000);
+        Intent intent = new Intent(getApplicationContext(), ProfileView.class);
+        startActivity(intent);
+        finish();
     }
 
     @Override
