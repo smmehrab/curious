@@ -126,5 +126,7 @@
     <string name="txt_published_articles">Published Articles</string>
     <string name="txt_posted_articles">Posted Articles</string>
     <string name="txt_profile">Profile</string>
+    <string name="txt_no_settings_options_provided_yet">No Settings Options Provided Yet</string>
+    <string name="txt_settings">Settings</string>
 
 </resources>

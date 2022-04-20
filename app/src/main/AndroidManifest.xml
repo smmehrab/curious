@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Curious">
         <activity
+            android:name=".Views.Others.SettingsView"
+            android:exported="false" />
+        <activity
             android:name=".Views.Profile.PostedArticlesView"
             android:exported="false" />
         <activity
@@ -42,7 +45,7 @@
         <activity
             android:name=".Views.General.ArticlesView"
             android:exported="false"
-            android:launchMode = "singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name=".Views.Auth.AuthView"
             android:exported="true">

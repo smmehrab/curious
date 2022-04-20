@@ -37,6 +37,7 @@ import com.example.curious.Util.SQLiteHelper;
 import com.example.curious.ViewModels.ArticleAdapter;
 import com.example.curious.Views.Auth.AuthView;
 import com.example.curious.Views.Moderate.ModerateArticlesView;
+import com.example.curious.Views.Others.SettingsView;
 import com.example.curious.Views.Profile.ProfileView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -408,9 +409,8 @@ public class SavedArticlesView extends AppCompatActivity implements View.OnClick
         }
 
         else if (id == R.id.user_settings_option) {
-            Snackbar.make(drawerLayout, "Settings View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), SettingsView.class);
-            // startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(), SettingsView.class);
+            startActivity(intent);
         }
         else if (id == R.id.user_about_option) {
             Snackbar.make(drawerLayout, "About View", Snackbar.LENGTH_SHORT).show();

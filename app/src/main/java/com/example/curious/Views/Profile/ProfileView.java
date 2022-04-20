@@ -33,6 +33,7 @@ import com.example.curious.Views.General.ArticlesView;
 import com.example.curious.Views.Auth.AuthView;
 import com.example.curious.Views.Moderate.ModerateArticlesView;
 import com.example.curious.Views.General.SavedArticlesView;
+import com.example.curious.Views.Others.SettingsView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -294,9 +295,8 @@ public class ProfileView extends AppCompatActivity implements View.OnClickListen
         }
 
         else if (id == R.id.user_settings_option) {
-            Snackbar.make(drawerLayout, "Settings View", Snackbar.LENGTH_SHORT).show();
-            // Intent intent = new Intent(getApplicationContext(), SettingsView.class);
-            // startActivity(intent);
+             Intent intent = new Intent(getApplicationContext(), SettingsView.class);
+             startActivity(intent);
         }
         else if (id == R.id.user_about_option) {
             Snackbar.make(drawerLayout, "About View", Snackbar.LENGTH_SHORT).show();
